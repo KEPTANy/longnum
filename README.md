@@ -14,7 +14,7 @@ make re
 # Clean build directory
 make clean
 
-# Clean all (including library itself)
+# Clean everything (including library itself)
 make fclean
 ```
 

@@ -1,0 +1,7 @@
+# I use it to make LSP find include folder, you probably don't need it
+.clangd
+
+# C++
+build/
+*.a
+*.lib

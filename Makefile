@@ -9,7 +9,7 @@ BUILD_DIR   := build
 OBJS        := $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 DEPS        := $(OBJS:.o=.d)
 
-CXX         := g++
+CXX         := clang++
 CXXFLAGS    := -O2 -Wall -Wextra -Werror -std=c++20 -pedantic-errors
 CPPFLAGS    := -MMD -MP -I$(INCLUDE_DIR)
 AR          := ar

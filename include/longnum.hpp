@@ -42,28 +42,32 @@ public:
   // the same as in `other`. `other` must be a finite number.
   template <std::floating_point T> Longnum(T other);
 
+  const std::vector<Digit> &get_digits() const { return digits; }
+  int get_exponent() const { return exponent; }
+  bool get_sign() const { return sign; }
+
 private:
   std::vector<Digit> digits{};
   int exponent{};
-  bool is_negative{};
+  bool sign{};
 
   template <std::unsigned_integral T> inline void set_digits(T num);
   void remove_leading_zeros();
 };
 
 template <std::integral T>
-Longnum::Longnum(T other) : exponent{0}, is_negative{other < 0} {
+Longnum::Longnum(T other) : exponent{0}, sign{other < 0} {
   using UnsignedT = std::make_unsigned_t<T>;
 
-  const UnsignedT abs_value{is_negative ? -static_cast<UnsignedT>(other)
-                                        : static_cast<UnsignedT>(other)};
+  const UnsignedT abs_value{sign ? -static_cast<UnsignedT>(other)
+                                 : static_cast<UnsignedT>(other)};
 
   set_digits(abs_value);
   remove_leading_zeros();
 }
 
 template <std::floating_point T>
-longnum::Longnum::Longnum(T other) : is_negative{std::signbit(other)} {
+longnum::Longnum::Longnum(T other) : sign{std::signbit(other)} {
   static_assert(sizeof(T) * CHAR_BIT <= 64,
                 "Value should be at most 64-bit wide");
   static_assert(std::numeric_limits<T>::is_iec559,
@@ -99,7 +103,7 @@ longnum::Longnum::Longnum(T other) : is_negative{std::signbit(other)} {
 
   // -0 -> 0
   if (digits.empty()) {
-    is_negative = false;
+    sign = false;
   }
 }
 

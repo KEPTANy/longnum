@@ -1,5 +1,6 @@
 # I use it to make LSP find include folder, you probably don't need it
-.clangd
+.cache/
+compile_commands.json
 
 # C++
 build/

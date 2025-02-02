@@ -85,11 +85,11 @@ longnum::Longnum::Longnum(T other) : sign{std::signbit(other)} {
   constexpr auto exp_bits{total_bits - mant_bits - 1};
   constexpr auto exp_bias{(1ull << (exp_bits - 1)) - 1};
 
-  const std::uintmax_t raw_mant{bits & ((1ull << mant_bits) - 1)};
-  const int raw_exp{(bits >> mant_bits) & ((1ull << exp_bits) - 1)};
+  const auto raw_mant{bits & ((1ull << mant_bits) - 1)};
+  const auto raw_exp{(bits >> mant_bits) & ((1ull << exp_bits) - 1)};
 
-  int exp{raw_exp - exp_bias - mant_bits};
-  std::uintmax_t mant{raw_mant};
+  int exp{static_cast<int>(raw_exp - exp_bias - mant_bits)};
+  std::uintmax_t mant{static_cast<std::uintmax_t>(raw_mant)};
   if (raw_exp == 0) {
     exp++;
   } else {

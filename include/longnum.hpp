@@ -1,13 +1,12 @@
 #ifndef LONGNUM_HPP
 #define LONGNUM_HPP
 
-#include <bit>
 #include <climits>
 #include <cmath>
 #include <concepts>
 #include <cstdint>
-#include <stdexcept>
 #include <limits>
+#include <stdexcept>
 #include <vector>
 
 namespace longnum {
@@ -48,9 +47,8 @@ private:
   int exponent{};
   bool is_negative{};
 
-  void remove_leading_zeros();
-
   template <std::unsigned_integral T> inline void set_digits(T num);
+  void remove_leading_zeros();
 };
 
 template <std::integral T>

@@ -44,12 +44,12 @@ public:
   template <std::floating_point T> Longnum(T other);
 
   const std::vector<Digit> &get_digits() const { return digits; }
-  int get_exponent() const { return exponent; }
+  int get_precision() const { return precision; }
   bool get_sign() const { return sign; }
 
 private:
   std::vector<Digit> digits{};
-  int exponent{};
+  int precision{};
   bool sign{};
 
   template <std::unsigned_integral T> inline void set_digits(T num);
@@ -57,7 +57,7 @@ private:
 };
 
 template <std::integral T>
-Longnum::Longnum(T other) : exponent{0}, sign{other < 0} {
+Longnum::Longnum(T other) : precision{0}, sign{other < 0} {
   using UnsignedT = std::make_unsigned_t<T>;
 
   const UnsignedT abs_value{sign ? -static_cast<UnsignedT>(other)
@@ -102,7 +102,7 @@ longnum::Longnum::Longnum(T other) : sign{std::signbit(other)} {
   }
 
   set_digits(mant);
-  exponent = exp;
+  precision = exp;
   remove_leading_zeros();
 
   // -0 -> 0

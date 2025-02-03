@@ -5,6 +5,7 @@
 #include <cmath>
 #include <concepts>
 #include <cstdint>
+#include <cstring>
 #include <limits>
 #include <stdexcept>
 #include <vector>
@@ -78,7 +79,10 @@ longnum::Longnum::Longnum(T other) : sign{std::signbit(other)} {
     throw std::invalid_argument("INF/NaN provided");
   }
 
-  const std::uintmax_t bits{static_cast<std::uintmax_t>(other)};
+  // HACK: there's probably a better way to do this with a std::bit_cast, but
+  // i just couldn't get it to work properly
+  std::uintmax_t bits{0};
+  std::memcpy(&bits, &other, sizeof(T));
 
   constexpr auto total_bits{sizeof(T) * CHAR_BIT};
   constexpr auto mant_bits{std::numeric_limits<T>::digits - 1};

@@ -16,11 +16,11 @@ namespace longnum {
 class Longnum {
 public:
 #if defined(__x86_64__) || defined(_WIN64)
-  using Digit = uint32_t;
-  using DoubleDigit = uint64_t;
+  using Digit = std::uint32_t;
+  using DoubleDigit = std::uint64_t;
 #elif defined(__i386__) || defined(_WIN32)
-  using Digit = uint16_t;
-  using DoubleDigit = uint32_t;
+  using Digit = std::uint16_t;
+  using DoubleDigit = std::uint32_t;
 #else
 #error "The system is not 64-bit niether 32-bit and therefore not supported"
 #endif

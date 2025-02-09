@@ -56,8 +56,10 @@ private:
   void remove_leading_zeros();
 };
 
+} // namespace longnum
+
 template <std::integral T>
-Longnum::Longnum(T other) : precision{0}, sign{other < 0} {
+longnum::Longnum::Longnum(T other) : precision{0}, sign{other < 0} {
   using UnsignedT = std::make_unsigned_t<T>;
 
   const UnsignedT abs_value{sign ? -static_cast<UnsignedT>(other)
@@ -111,7 +113,8 @@ longnum::Longnum::Longnum(T other) : sign{std::signbit(other)} {
   }
 }
 
-template <std::unsigned_integral T> inline void Longnum::set_digits(T num) {
+template <std::unsigned_integral T>
+inline void longnum::Longnum::set_digits(T num) {
   constexpr auto bits{std::numeric_limits<T>::digits};
 
   const auto digits_needed{(bits + digit_bits - 1) / digit_bits};
@@ -124,7 +127,5 @@ template <std::unsigned_integral T> inline void Longnum::set_digits(T num) {
     digits.emplace_back((num >> shift) & mask);
   }
 }
-
-} // namespace longnum
 
 #endif

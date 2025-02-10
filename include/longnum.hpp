@@ -48,7 +48,7 @@ public:
 
 private:
   std::vector<Digit> digits{};
-  int precision{};
+  std::int32_t precision{};
   bool sign{};
 
   void set_digits(std::uintmax_t digits);

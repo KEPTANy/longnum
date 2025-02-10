@@ -56,6 +56,13 @@ private:
   void remove_leading_zeros();
 };
 
+namespace literals {
+
+Longnum operator""_longnum(long double other);
+Longnum operator""_longnum(unsigned long long other);
+
+} // namespace literals
+
 } // namespace longnum
 
 template <std::integral T>

@@ -71,7 +71,7 @@ ln::Longnum::Longnum(T other) : precision{0}, sign{other < 0} {
   const UnsignedT abs_value{sign ? -static_cast<UnsignedT>(other)
                                  : static_cast<UnsignedT>(other)};
 
-  set_digits(abs_value);
+  set_digits(static_cast<std::uintmax_t>(abs_value));
   remove_leading_zeros();
 }
 

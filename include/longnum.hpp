@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace longnum {
+namespace ln {
 
 // An arbitrary precision fixed-point type.
 class Longnum {
@@ -39,34 +39,33 @@ public:
   // Initialization with any primitive integral value, works as expected.
   template <std::integral T> Longnum(T other);
 
-  // Initialization with any primitive floating-point value, the precision stays
-  // the same as in `other`. `other` must be a finite number.
+  // Initialization with any IEEE 754 primitive floating-point value, the
+  // precision stays the same as in `other`. `other` must be a finite number.
   template <std::floating_point T> Longnum(T other);
 
-  const std::vector<Digit> &get_digits() const { return digits; }
-  int get_precision() const { return precision; }
-  bool get_sign() const { return sign; }
+  int get_precision() const;
+  bool get_sign() const;
 
 private:
   std::vector<Digit> digits{};
   int precision{};
   bool sign{};
 
-  template <std::unsigned_integral T> inline void set_digits(T num);
+  void set_digits(std::uintmax_t digits);
   void remove_leading_zeros();
 };
 
-namespace literals {
+namespace lits {
 
 Longnum operator""_longnum(long double other);
 Longnum operator""_longnum(unsigned long long other);
 
-} // namespace literals
+} // namespace lits
 
-} // namespace longnum
+} // namespace ln
 
 template <std::integral T>
-longnum::Longnum::Longnum(T other) : precision{0}, sign{other < 0} {
+ln::Longnum::Longnum(T other) : precision{0}, sign{other < 0} {
   using UnsignedT = std::make_unsigned_t<T>;
 
   const UnsignedT abs_value{sign ? -static_cast<UnsignedT>(other)
@@ -77,7 +76,7 @@ longnum::Longnum::Longnum(T other) : precision{0}, sign{other < 0} {
 }
 
 template <std::floating_point T>
-longnum::Longnum::Longnum(T other) : sign{std::signbit(other)} {
+ln::Longnum::Longnum(T other) : sign{std::signbit(other)} {
   static_assert(sizeof(T) * CHAR_BIT <= 64,
                 "Value should be at most 64-bit wide");
   static_assert(std::numeric_limits<T>::is_iec559,
@@ -117,21 +116,6 @@ longnum::Longnum::Longnum(T other) : sign{std::signbit(other)} {
   // -0 -> 0
   if (digits.empty()) {
     sign = false;
-  }
-}
-
-template <std::unsigned_integral T>
-inline void longnum::Longnum::set_digits(T num) {
-  constexpr auto bits{std::numeric_limits<T>::digits};
-
-  const auto digits_needed{(bits + digit_bits - 1) / digit_bits};
-  digits.reserve(digits_needed);
-
-  for (std::size_t i{0}; i < digits_needed; i++) {
-    const auto shift{i * digit_bits};
-    constexpr auto mask{std::numeric_limits<Digit>::max()};
-
-    digits.emplace_back((num >> shift) & mask);
   }
 }
 

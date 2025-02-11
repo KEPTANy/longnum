@@ -7,7 +7,7 @@ Longnum::Longnum() : digits{}, precision{0}, sign{false} {}
 int Longnum::get_precision() const { return precision; }
 bool Longnum::get_sign() const { return sign; }
 
-void ln::Longnum::set_digits(std::uintmax_t num) {
+void Longnum::set_digits(std::uintmax_t num) {
   constexpr auto bits{std::numeric_limits<std::uintmax_t>::digits};
 
   const auto digits_needed{(bits + digit_bits - 1) / digit_bits};
@@ -19,6 +19,68 @@ void ln::Longnum::set_digits(std::uintmax_t num) {
 
     digits.emplace_back((num >> shift) & mask);
   }
+}
+
+bool Longnum::operator<(const Longnum &other) {
+  if (this->sign != other.sign) {
+    return this->sign;
+  }
+
+  if (this->digits.size() != other.digits.size()) {
+    return this->sign != this->digits.size() < other.digits.size();
+  }
+
+  for (std::size_t i = this->digits.size() - 1; i < this->digits.size(); i--) {
+    if (this->digits[i] != other.digits[i]) {
+      return this->sign != this->digits[i] < other.digits[i];
+    }
+  }
+
+  return false;
+}
+
+bool Longnum::operator>(const Longnum &other) {
+  if (this->sign != other.sign) {
+    return other.sign;
+  }
+
+  if (this->digits.size() != other.digits.size()) {
+    return this->sign != this->digits.size() > other.digits.size();
+  }
+
+  for (std::size_t i = this->digits.size() - 1; i < this->digits.size(); i--) {
+    if (this->digits[i] != other.digits[i]) {
+      return this->sign != this->digits[i] > other.digits[i];
+    }
+  }
+
+  return false;
+}
+
+bool Longnum::operator<=(const Longnum &other) { return !(*this > other); }
+
+bool Longnum::operator>=(const Longnum &other) { return !(*this < other); }
+
+bool Longnum::operator==(const Longnum &other) {
+  if (this->sign != other.sign || this->digits.size() != other.digits.size()) {
+    return false;
+  }
+  for (std::size_t i = 0; i < this->digits.size(); i++) {
+    if (this->digits[i] != other.digits[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool Longnum::operator!=(const Longnum &other) { return !(*this == other); }
+
+Longnum Longnum::operator-(const Longnum &x) {
+  auto y = x;
+  if (!y.digits.empty()) {
+    y.sign = !y.sign;
+  }
+  return y;
 }
 
 void Longnum::remove_leading_zeros() {

@@ -45,6 +45,15 @@ public:
 
   int get_precision() const;
   bool get_sign() const;
+ 
+  bool operator<(const Longnum &other);
+  bool operator>(const Longnum &other);
+  bool operator<=(const Longnum &other);
+  bool operator>=(const Longnum &other);
+  bool operator==(const Longnum &other);
+  bool operator!=(const Longnum &other);
+
+  Longnum operator-(const Longnum &x);
 
 private:
   std::vector<Digit> digits{};

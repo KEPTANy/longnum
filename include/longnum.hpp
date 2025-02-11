@@ -43,7 +43,7 @@ public:
   // precision stays the same as in `other`. `other` must be a finite number.
   template <std::floating_point T> Longnum(T other);
 
-  int get_precision() const;
+  std::int32_t get_precision() const;
   bool get_sign() const;
 
   // Sets new exponent for a number.

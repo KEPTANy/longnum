@@ -14,7 +14,7 @@ static void align_precision(Longnum &a, Longnum &b) {
 
 Longnum::Longnum() : digits{}, precision{0}, sign{false} {}
 
-int Longnum::get_precision() const { return precision; }
+std::int32_t Longnum::get_precision() const { return precision; }
 bool Longnum::get_sign() const { return sign; }
 
 void Longnum::set_precision(std::int32_t new_prec) {

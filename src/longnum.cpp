@@ -12,10 +12,15 @@ static void align_precision(Longnum &a, Longnum &b) {
   b.set_precision(a.get_precision());
 }
 
-Longnum::Longnum() : digits{}, precision{0}, sign{false} {}
+Longnum::Longnum() : digits{}, precision{0}, negative{false} {}
 
 std::int32_t Longnum::get_precision() const { return precision; }
-bool Longnum::get_sign() const { return sign; }
+
+void Longnum::flip_sign() {
+  if (!is_zero()) {
+    negative = !negative;
+  }
+}
 
 void Longnum::set_precision(std::int32_t new_prec) {
   if (new_prec == precision) {
@@ -32,25 +37,25 @@ void Longnum::set_precision(std::int32_t new_prec) {
   remove_leading_zeros();
 }
 
-bool Longnum::is_zero() const { return digits.empty(); }
-bool Longnum::is_negative() const { return sign; }
+bool Longnum::is_negative() const { return negative; }
 bool Longnum::is_positive() const { return !is_zero() && !is_negative(); }
+bool Longnum::is_zero() const { return digits.empty(); }
 
 bool Longnum::operator<(const Longnum &other) const {
   Longnum a{*this}, b{other};
   ln::align_precision(a, b);
 
-  if (a.sign != b.sign) {
-    return a.sign;
+  if (a.negative != b.negative) {
+    return a.negative;
   }
 
   if (a.digits.size() != b.digits.size()) {
-    return a.sign != a.digits.size() < b.digits.size();
+    return a.negative != a.digits.size() < b.digits.size();
   }
 
   for (std::size_t i{a.digits.size() - 1}; i < a.digits.size(); i--) {
     if (a.digits[i] != b.digits[i]) {
-      return a.sign != a.digits[i] < b.digits[i];
+      return a.negative != a.digits[i] < b.digits[i];
     }
   }
 
@@ -73,7 +78,7 @@ bool Longnum::operator==(const Longnum &other) const {
   Longnum a{*this}, b{other};
   ln::align_precision(a, b);
 
-  if (a.sign != b.sign || a.digits.size() != b.digits.size()) {
+  if (a.negative != b.negative || a.digits.size() != b.digits.size()) {
     return false;
   }
 
@@ -94,7 +99,7 @@ Longnum &Longnum::operator+=(const Longnum &other) {
   Longnum num{other};
   ln::align_precision(*this, num);
 
-  if (sign == num.sign) {
+  if (negative == num.negative) {
     Digit carry{0};
     digits.resize(std::max(digits.size(), num.digits.size()) + 1, 0);
     for (std::size_t i{0}; i < digits.size(); i++) {
@@ -113,7 +118,7 @@ Longnum &Longnum::operator+=(const Longnum &other) {
     }
 
     if (bigger == -1) {
-      sign = num.sign;
+      negative = num.negative;
     }
 
     DoubleDigit carry{0};
@@ -149,7 +154,7 @@ Longnum &Longnum::operator-=(const Longnum &other) {
 }
 
 Longnum &Longnum::operator*=(const Longnum &other) {
-  sign = sign != other.sign;
+  negative = negative != other.negative;
 
   std::vector<Digit> new_digits(digits.size() + other.digits.size(), 0);
   for (std::size_t i{0}; i < digits.size(); i++) {
@@ -198,7 +203,7 @@ Longnum &Longnum::operator/=(const Longnum &other) {
     }
   }
 
-  res.sign = sign != other.sign;
+  res.negative = negative != other.negative;
   res.remove_leading_zeros();
   return *this = res;
 }
@@ -251,18 +256,12 @@ std::size_t Longnum::bits_in_digits() const {
          (digits.empty() ? 0 : std::countl_zero(digits.back()));
 }
 
-void Longnum::flip_sign() {
-  if (!is_zero()) {
-    sign = !sign;
-  }
-}
-
 void Longnum::remove_leading_zeros() {
   while (!is_zero() && digits.back() == 0) {
     digits.pop_back();
   }
   if (is_zero()) {
-    sign = false;
+    negative = false;
   }
 }
 

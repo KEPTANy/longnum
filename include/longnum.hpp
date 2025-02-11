@@ -44,13 +44,13 @@ public:
   template <std::floating_point T> Longnum(T other);
 
   std::int32_t get_precision() const;
-  bool get_sign() const;
 
+  void flip_sign();
   void set_precision(std::int32_t prec);
 
-  bool is_zero() const;
   bool is_negative() const;
   bool is_positive() const;
+  bool is_zero() const;
 
   bool operator<(const Longnum &other) const;
   bool operator>(const Longnum &other) const;
@@ -74,11 +74,10 @@ public:
 private:
   std::vector<Digit> digits{};
   std::int32_t precision{};
-  bool sign{};
+  bool negative{};
 
   int abs_compare(const Longnum &other) const;
   std::size_t bits_in_digits() const;
-  void flip_sign();
   void remove_leading_zeros();
   void set_digits(std::uintmax_t digits);
 
@@ -96,10 +95,10 @@ Longnum operator""_longnum(unsigned long long other);
 } // namespace ln
 
 template <std::integral T>
-ln::Longnum::Longnum(T other) : precision{0}, sign{other < 0} {
+ln::Longnum::Longnum(T other) : precision{0}, negative{other < 0} {
   using UnsignedT = std::make_unsigned_t<T>;
 
-  const UnsignedT abs_value{sign ? -static_cast<UnsignedT>(other)
+  const UnsignedT abs_value{negative ? -static_cast<UnsignedT>(other)
                                  : static_cast<UnsignedT>(other)};
 
   set_digits(static_cast<std::uintmax_t>(abs_value));
@@ -107,7 +106,7 @@ ln::Longnum::Longnum(T other) : precision{0}, sign{other < 0} {
 }
 
 template <std::floating_point T>
-ln::Longnum::Longnum(T other) : sign{std::signbit(other)} {
+ln::Longnum::Longnum(T other) : negative{std::signbit(other)} {
   static_assert(sizeof(T) * CHAR_BIT <= 64,
                 "Value should be at most 64-bit wide");
   static_assert(std::numeric_limits<T>::is_iec559,

@@ -25,6 +25,8 @@ public:
 #error "The system is not 64-bit niether 32-bit and therefore not supported"
 #endif
 
+  using Precision = std::int32_t;
+
   static constexpr auto digit_bits{std::numeric_limits<Digit>::digits};
 
   ~Longnum() = default;
@@ -44,10 +46,10 @@ public:
   template <std::floating_point T> Longnum(T other);
 
   std::size_t bits_in_absolute_value() const;
-  std::int32_t get_precision() const;
+  Precision get_precision() const;
 
   void flip_sign();
-  void set_precision(std::int32_t prec);
+  void set_precision(Precision prec);
 
   bool is_negative() const;
   bool is_positive() const;
@@ -74,7 +76,7 @@ public:
 
 private:
   std::vector<Digit> digits{};
-  std::int32_t precision{};
+  Precision precision{};
   bool negative{};
 
   int abs_compare(const Longnum &other) const;

@@ -23,7 +23,7 @@ std::size_t Longnum::bits_in_absolute_value() const {
              : digits.size() * digit_bits - std::countl_zero(digits.back());
 }
 
-std::int32_t Longnum::get_precision() const { return precision; }
+Longnum::Precision Longnum::get_precision() const { return precision; }
 
 void Longnum::flip_sign() {
   if (!is_zero()) {
@@ -31,7 +31,7 @@ void Longnum::flip_sign() {
   }
 }
 
-void Longnum::set_precision(std::int32_t new_prec) {
+void Longnum::set_precision(Longnum::Precision new_prec) {
   if (new_prec == precision) {
     return;
   }

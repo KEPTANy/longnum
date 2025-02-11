@@ -56,24 +56,7 @@ bool Longnum::operator<(const Longnum &other) const {
 }
 
 bool Longnum::operator>(const Longnum &other) const {
-  Longnum a{*this}, b{other};
-  ln::align_precision(a, b);
-
-  if (a.sign != b.sign) {
-    return b.sign;
-  }
-
-  if (a.digits.size() != b.digits.size()) {
-    return a.sign != a.digits.size() > b.digits.size();
-  }
-
-  for (std::size_t i{a.digits.size() - 1}; i < a.digits.size(); i--) {
-    if (a.digits[i] != b.digits[i]) {
-      return a.sign != a.digits[i] > b.digits[i];
-    }
-  }
-
-  return false;
+  return other < *this;
 }
 
 bool Longnum::operator<=(const Longnum &other) const {

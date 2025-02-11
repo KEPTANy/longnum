@@ -4,17 +4,6 @@
 
 namespace ln {
 
-void Longnum::align_with(Longnum &other) {
-  const auto this_precision{get_precision()};
-  const auto other_precision{other.get_precision()};
-
-  if (this_precision < other_precision) {
-    this->set_precision(other_precision);
-  } else {
-    other.set_precision(this_precision);
-  }
-}
-
 Longnum::Longnum() : digits{}, precision{0}, negative{false} {}
 
 std::size_t Longnum::bits_in_absolute_value() const {
@@ -259,6 +248,17 @@ int Longnum::abs_compare(const Longnum &other) const {
   }
 
   return 0;
+}
+
+void Longnum::align_with(Longnum &other) {
+  const auto this_precision{get_precision()};
+  const auto other_precision{other.get_precision()};
+
+  if (this_precision < other_precision) {
+    this->set_precision(other_precision);
+  } else {
+    other.set_precision(this_precision);
+  }
 }
 
 void Longnum::remove_leading_zeros() {

@@ -75,8 +75,8 @@ bool Longnum::operator==(const Longnum &other) {
 
 bool Longnum::operator!=(const Longnum &other) { return !(*this == other); }
 
-Longnum Longnum::operator-(const Longnum &x) {
-  auto y = x;
+Longnum Longnum::operator-() {
+  auto y = *this;
   if (!y.digits.empty()) {
     y.sign = !y.sign;
   }

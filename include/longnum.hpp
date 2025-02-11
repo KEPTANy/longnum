@@ -61,12 +61,14 @@ public:
   Longnum &operator+=(const Longnum &other);
   Longnum &operator-=(const Longnum &other);
   Longnum &operator*=(const Longnum &other);
+  Longnum &operator/=(const Longnum &other);
 
   Longnum operator-() const;
 
   Longnum operator+(const Longnum &other) const;
   Longnum operator-(const Longnum &other) const;
   Longnum operator*(const Longnum &other) const;
+  Longnum operator/(const Longnum &other) const;
 
 private:
   std::vector<Digit> digits{};
@@ -74,6 +76,7 @@ private:
   bool sign{};
 
   int abs_compare(const Longnum &other) const;
+  std::size_t bits_in_digits() const;
   void flip_sign();
   void remove_leading_zeros();
   void set_digits(std::uintmax_t digits);

@@ -33,6 +33,8 @@ void Longnum::set_precision(std::int32_t new_prec) {
 }
 
 bool Longnum::is_zero() const { return digits.empty(); }
+bool Longnum::is_negative() const { return sign; }
+bool Longnum::is_positive() const { return !is_zero() && !is_negative(); }
 
 bool Longnum::operator<(const Longnum &other) const {
   Longnum a{*this}, b{other};

@@ -46,10 +46,11 @@ public:
   std::int32_t get_precision() const;
   bool get_sign() const;
 
-  // Sets new exponent for a number.
   void set_precision(std::int32_t prec);
 
   bool is_zero() const;
+  bool is_negative() const;
+  bool is_positive() const;
 
   bool operator<(const Longnum &other) const;
   bool operator>(const Longnum &other) const;

@@ -49,6 +49,8 @@ public:
   // Sets new exponent for a number.
   void set_precision(std::int32_t prec);
 
+  bool is_zero() const;
+
   bool operator<(const Longnum &other) const;
   bool operator>(const Longnum &other) const;
   bool operator<=(const Longnum &other) const;

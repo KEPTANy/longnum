@@ -32,6 +32,10 @@ void Longnum::set_precision(std::int32_t new_prec) {
   remove_leading_zeros();
 }
 
+bool Longnum::is_zero() const {
+  return digits.empty();
+}
+
 bool Longnum::operator<(const Longnum &other) const {
   Longnum a{*this}, b{other};
   ln::align_precision(a, b);
@@ -221,16 +225,16 @@ int Longnum::abs_compare(const Longnum &other) const {
 }
 
 void Longnum::flip_sign() {
-  if (!digits.empty()) {
+  if (!is_zero()) {
     sign = !sign;
   }
 }
 
 void Longnum::remove_leading_zeros() {
-  while (!digits.empty() && digits.back() == 0) {
+  while (!is_zero() && digits.back() == 0) {
     digits.pop_back();
   }
-  if (digits.empty()) {
+  if (is_zero()) {
     sign = false;
   }
 }
@@ -250,7 +254,7 @@ void Longnum::set_digits(std::uintmax_t num) {
 }
 
 void Longnum::operator<<(std::size_t sh) {
-  if (digits.empty()) {
+  if (is_zero()) {
     return;
   }
 
@@ -278,7 +282,7 @@ void Longnum::operator<<(std::size_t sh) {
 }
 
 void Longnum::operator>>(std::size_t sh) {
-  if (digits.empty()) {
+  if (is_zero()) {
     return;
   }
 

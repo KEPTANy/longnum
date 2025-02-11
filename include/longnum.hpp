@@ -51,9 +51,7 @@ public:
   void flip_sign();
   void set_precision(Precision prec);
 
-  bool is_negative() const;
-  bool is_positive() const;
-  bool is_zero() const;
+  int sign() const;
 
   bool operator<(const Longnum &other) const;
   bool operator>(const Longnum &other) const;

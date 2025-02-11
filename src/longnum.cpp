@@ -18,7 +18,7 @@ void Longnum::align_with(Longnum &other) {
 Longnum::Longnum() : digits{}, precision{0}, negative{false} {}
 
 std::size_t Longnum::bits_in_absolute_value() const {
-  return is_zero()
+  return sign() == 0
              ? 0
              : digits.size() * digit_bits - std::countl_zero(digits.back());
 }
@@ -26,7 +26,7 @@ std::size_t Longnum::bits_in_absolute_value() const {
 Longnum::Precision Longnum::get_precision() const { return precision; }
 
 void Longnum::flip_sign() {
-  if (!is_zero()) {
+  if (sign() != 0) {
     negative = !negative;
   }
 }
@@ -46,9 +46,12 @@ void Longnum::set_precision(Longnum::Precision new_prec) {
   remove_leading_zeros();
 }
 
-bool Longnum::is_negative() const { return negative; }
-bool Longnum::is_positive() const { return !is_zero() && !is_negative(); }
-bool Longnum::is_zero() const { return digits.empty(); }
+int Longnum::sign() const {
+  if (digits.empty()) {
+    return 0;
+  }
+  return negative ? -1 : 1;
+}
 
 bool Longnum::operator<(const Longnum &other) const {
   Longnum a{*this}, b{other};
@@ -182,7 +185,7 @@ Longnum &Longnum::operator*=(const Longnum &other) {
 }
 
 Longnum &Longnum::operator/=(const Longnum &other) {
-  if (other.is_zero()) {
+  if (other.sign() == 0) {
     throw std::invalid_argument("Division by zero is not allowed");
   }
 
@@ -259,10 +262,10 @@ int Longnum::abs_compare(const Longnum &other) const {
 }
 
 void Longnum::remove_leading_zeros() {
-  while (!is_zero() && digits.back() == 0) {
+  while (sign() != 0 && digits.back() == 0) {
     digits.pop_back();
   }
-  if (is_zero()) {
+  if (sign() == 0) {
     negative = false;
   }
 }
@@ -282,7 +285,7 @@ void Longnum::set_digits(std::uintmax_t num) {
 }
 
 void Longnum::operator<<(std::size_t sh) {
-  if (is_zero()) {
+  if (sign() == 0) {
     return;
   }
 
@@ -310,7 +313,7 @@ void Longnum::operator<<(std::size_t sh) {
 }
 
 void Longnum::operator>>(std::size_t sh) {
-  if (is_zero()) {
+  if (sign() == 0) {
     return;
   }
 

@@ -43,6 +43,7 @@ public:
   // precision stays the same as in `other`. `other` must be a finite number.
   template <std::floating_point T> Longnum(T other);
 
+  std::size_t bits_in_absolute_value() const;
   std::int32_t get_precision() const;
 
   void flip_sign();
@@ -77,7 +78,7 @@ private:
   bool negative{};
 
   int abs_compare(const Longnum &other) const;
-  std::size_t bits_in_digits() const;
+  void align_with(Longnum &other);
   void remove_leading_zeros();
   void set_digits(std::uintmax_t digits);
 

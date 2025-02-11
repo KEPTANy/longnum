@@ -4,15 +4,24 @@
 
 namespace ln {
 
-static void align_precision(Longnum &a, Longnum &b) {
-  if (a.get_precision() < b.get_precision()) {
-    std::swap(a, b);
-  }
+void Longnum::align_with(Longnum &other) {
+  const auto this_precision{get_precision()};
+  const auto other_precision{other.get_precision()};
 
-  b.set_precision(a.get_precision());
+  if (this_precision < other_precision) {
+    this->set_precision(other_precision);
+  } else {
+    other.set_precision(this_precision);
+  }
 }
 
 Longnum::Longnum() : digits{}, precision{0}, negative{false} {}
+
+std::size_t Longnum::bits_in_absolute_value() const {
+  return is_zero()
+             ? 0
+             : digits.size() * digit_bits - std::countl_zero(digits.back());
+}
 
 std::int32_t Longnum::get_precision() const { return precision; }
 
@@ -43,7 +52,7 @@ bool Longnum::is_zero() const { return digits.empty(); }
 
 bool Longnum::operator<(const Longnum &other) const {
   Longnum a{*this}, b{other};
-  ln::align_precision(a, b);
+  a.align_with(b);
 
   if (a.negative != b.negative) {
     return a.negative;
@@ -62,9 +71,7 @@ bool Longnum::operator<(const Longnum &other) const {
   return false;
 }
 
-bool Longnum::operator>(const Longnum &other) const {
-  return other < *this;
-}
+bool Longnum::operator>(const Longnum &other) const { return other < *this; }
 
 bool Longnum::operator<=(const Longnum &other) const {
   return !(*this > other);
@@ -76,7 +83,7 @@ bool Longnum::operator>=(const Longnum &other) const {
 
 bool Longnum::operator==(const Longnum &other) const {
   Longnum a{*this}, b{other};
-  ln::align_precision(a, b);
+  a.align_with(b);
 
   if (a.negative != b.negative || a.digits.size() != b.digits.size()) {
     return false;
@@ -97,7 +104,7 @@ bool Longnum::operator!=(const Longnum &other) const {
 
 Longnum &Longnum::operator+=(const Longnum &other) {
   Longnum num{other};
-  ln::align_precision(*this, num);
+  align_with(num);
 
   if (negative == num.negative) {
     Digit carry{0};
@@ -185,7 +192,7 @@ Longnum &Longnum::operator/=(const Longnum &other) {
   Longnum buff{0};
   buff.set_precision(precision);
 
-  std::size_t bits{bits_in_digits() + other.bits_in_digits()};
+  std::size_t bits{bits_in_absolute_value() + other.bits_in_absolute_value()};
   res.digits.reserve((bits + digit_bits - 1) / digit_bits);
   buff.digits.reserve((bits + digit_bits - 1) / digit_bits);
 
@@ -236,7 +243,7 @@ Longnum Longnum::operator/(const Longnum &other) const {
 
 int Longnum::abs_compare(const Longnum &other) const {
   Longnum a{*this}, b{other};
-  ln::align_precision(a, b);
+  a.align_with(b);
 
   if (a.digits.size() != b.digits.size()) {
     return a.digits.size() < b.digits.size() ? -1 : 1;
@@ -249,11 +256,6 @@ int Longnum::abs_compare(const Longnum &other) const {
   }
 
   return 0;
-}
-
-std::size_t Longnum::bits_in_digits() const {
-  return digits.size() * digit_bits -
-         (digits.empty() ? 0 : std::countl_zero(digits.back()));
 }
 
 void Longnum::remove_leading_zeros() {

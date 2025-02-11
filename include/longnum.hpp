@@ -46,22 +46,36 @@ public:
   int get_precision() const;
   bool get_sign() const;
 
-  bool operator<(const Longnum &other);
-  bool operator>(const Longnum &other);
-  bool operator<=(const Longnum &other);
-  bool operator>=(const Longnum &other);
-  bool operator==(const Longnum &other);
-  bool operator!=(const Longnum &other);
+  // Sets new exponent for a number.
+  void set_precision(std::int32_t prec);
 
-  Longnum operator-();
+  bool operator<(const Longnum &other) const;
+  bool operator>(const Longnum &other) const;
+  bool operator<=(const Longnum &other) const;
+  bool operator>=(const Longnum &other) const;
+  bool operator==(const Longnum &other) const;
+  bool operator!=(const Longnum &other) const;
+
+  Longnum &operator+=(const Longnum &other);
+  Longnum &operator-=(const Longnum &other);
+
+  Longnum operator-() const;
+
+  Longnum operator+(const Longnum &other) const;
+  Longnum operator-(const Longnum &other) const;
 
 private:
   std::vector<Digit> digits{};
   std::int32_t precision{};
   bool sign{};
 
-  void set_digits(std::uintmax_t digits);
+  int abs_compare(const Longnum &other) const;
+  void flip_sign();
   void remove_leading_zeros();
+  void set_digits(std::uintmax_t digits);
+
+  void operator<<(std::size_t sh);
+  void operator>>(std::size_t sh);
 };
 
 namespace lits {

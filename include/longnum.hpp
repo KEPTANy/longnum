@@ -58,11 +58,13 @@ public:
 
   Longnum &operator+=(const Longnum &other);
   Longnum &operator-=(const Longnum &other);
+  Longnum &operator*=(const Longnum &other);
 
   Longnum operator-() const;
 
   Longnum operator+(const Longnum &other) const;
   Longnum operator-(const Longnum &other) const;
+  Longnum operator*(const Longnum &other) const;
 
 private:
   std::vector<Digit> digits{};

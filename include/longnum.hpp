@@ -137,11 +137,6 @@ ln::Longnum::Longnum(T other) : sign{std::signbit(other)} {
   set_digits(mant);
   precision = exp;
   remove_leading_zeros();
-
-  // -0 -> 0
-  if (digits.empty()) {
-    sign = false;
-  }
 }
 
 #endif

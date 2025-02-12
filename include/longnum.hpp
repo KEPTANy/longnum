@@ -3,6 +3,7 @@
 
 #include <climits>
 #include <cmath>
+#include <compare>
 #include <concepts>
 #include <cstdint>
 #include <cstring>
@@ -53,12 +54,7 @@ public:
 
   int sign() const;
 
-  bool operator<(const Longnum &other) const;
-  bool operator>(const Longnum &other) const;
-  bool operator<=(const Longnum &other) const;
-  bool operator>=(const Longnum &other) const;
-  bool operator==(const Longnum &other) const;
-  bool operator!=(const Longnum &other) const;
+  std::strong_ordering operator<=>(const Longnum &other) const;
 
   Longnum &operator+=(const Longnum &other);
   Longnum &operator-=(const Longnum &other);
@@ -84,6 +80,8 @@ private:
 
   void operator<<(std::size_t sh);
   void operator>>(std::size_t sh);
+
+  bool operator[](std::intmax_t index) const;
 };
 
 namespace lits {
@@ -100,7 +98,7 @@ ln::Longnum::Longnum(T other) : precision{0}, negative{other < 0} {
   using UnsignedT = std::make_unsigned_t<T>;
 
   const UnsignedT abs_value{negative ? -static_cast<UnsignedT>(other)
-                                 : static_cast<UnsignedT>(other)};
+                                     : static_cast<UnsignedT>(other)};
 
   set_digits(static_cast<std::uintmax_t>(abs_value));
   remove_leading_zeros();

@@ -42,56 +42,43 @@ int Longnum::sign() const {
   return negative ? -1 : 1;
 }
 
-bool Longnum::operator<(const Longnum &other) const {
-  Longnum a{*this}, b{other};
-  a.align_with(b);
+std::strong_ordering Longnum::operator<=>(const Longnum &other) const {
+  auto this_sign{sign()};
+  auto other_sign{other.sign()};
 
-  if (a.negative != b.negative) {
-    return a.negative;
+  if (this_sign != other_sign) {
+    return this_sign < other_sign ? std::strong_ordering::less
+                                  : std::strong_ordering::greater;
   }
 
-  if (a.digits.size() != b.digits.size()) {
-    return a.negative != a.digits.size() < b.digits.size();
+  if (this_sign == 0 && other_sign == 0) {
+    return std::strong_ordering::equal;
   }
 
-  for (std::size_t i{a.digits.size() - 1}; i < a.digits.size(); i--) {
-    if (a.digits[i] != b.digits[i]) {
-      return a.negative != a.digits[i] < b.digits[i];
+  auto this_bits{bits_in_absolute_value()};
+  auto other_bits{other.bits_in_absolute_value()};
+
+  auto this_prec{get_precision()};
+  auto other_prec{other.get_precision()};
+
+  auto this_msb{static_cast<std::intmax_t>(this_bits) - this_prec};
+  auto other_msb{static_cast<std::intmax_t>(other_bits) - other_prec};
+  if (this_msb != other_msb) {
+    return ((this_msb < other_msb) == (this_sign > 0))
+               ? std::strong_ordering::less
+               : std::strong_ordering::greater;
+  }
+
+  for (std::intmax_t i{this_msb - 1}; i <= this_prec && i <= other_prec; i--) {
+    auto x{(*this)[i + this_prec]};
+    auto y{other[i + other_prec]};
+    if (x != y) {
+      return (x == (this_sign > 0)) ? std::strong_ordering::greater
+                                    : std::strong_ordering::less;
     }
   }
 
-  return false;
-}
-
-bool Longnum::operator>(const Longnum &other) const { return other < *this; }
-
-bool Longnum::operator<=(const Longnum &other) const {
-  return !(*this > other);
-}
-
-bool Longnum::operator>=(const Longnum &other) const {
-  return !(*this < other);
-}
-
-bool Longnum::operator==(const Longnum &other) const {
-  Longnum a{*this}, b{other};
-  a.align_with(b);
-
-  if (a.negative != b.negative || a.digits.size() != b.digits.size()) {
-    return false;
-  }
-
-  for (std::size_t i{0}; i < a.digits.size(); i++) {
-    if (a.digits[i] != b.digits[i]) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-bool Longnum::operator!=(const Longnum &other) const {
-  return !(*this == other);
+  return std::strong_ordering::equal;
 }
 
 Longnum &Longnum::operator+=(const Longnum &other) {
@@ -338,6 +325,14 @@ void Longnum::operator>>(std::size_t sh) {
   }
 
   remove_leading_zeros();
+}
+
+bool Longnum::operator[](std::intmax_t index) const {
+  if (index < 0 ||
+      static_cast<std::size_t>(index) / digit_bits >= digits.size()) {
+    return false;
+  }
+  return (digits[index / digit_bits] >> (index % digit_bits)) & 0x1;
 }
 
 namespace lits {

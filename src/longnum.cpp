@@ -4,7 +4,8 @@
 
 namespace ln {
 
-Longnum::Longnum() : digits{}, precision{0}, negative{false} {}
+Longnum::Longnum(std::int32_t precision)
+    : digits{}, precision{precision}, negative{false} {}
 
 std::size_t Longnum::bits_in_absolute_value() const {
   return sign() == 0

@@ -188,7 +188,7 @@ bool Longnum::operator[](std::intmax_t index) const {
       static_cast<std::size_t>(index) / digit_bits >= digits.size()) {
     return false;
   }
-  return (digits[index / digit_bits] >> (index % digit_bits)) & 0x1;
+  return static_cast<bool>(digits[index / digit_bits] >> (index % digit_bits));
 }
 
 namespace lits {

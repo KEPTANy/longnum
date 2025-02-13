@@ -73,7 +73,7 @@ private:
   Precision precision{};
   bool negative{};
 
-  int abs_compare(const Longnum &other) const;
+  std::strong_ordering abs_compare(const Longnum &other) const;
   void align_with(Longnum &other);
   void remove_leading_zeros();
   void set_digits(std::uintmax_t digits);

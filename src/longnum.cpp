@@ -51,34 +51,13 @@ std::strong_ordering Longnum::operator<=>(const Longnum &other) const {
                                   : std::strong_ordering::greater;
   }
 
-  if (this_sign == 0 && other_sign == 0) {
-    return std::strong_ordering::equal;
+  auto cmp = abs_compare(other);
+  if (this_sign >= 0) {
+    return cmp;
   }
 
-  auto this_bits{bits_in_absolute_value()};
-  auto other_bits{other.bits_in_absolute_value()};
-
-  auto this_prec{get_precision()};
-  auto other_prec{other.get_precision()};
-
-  auto this_msb{static_cast<std::intmax_t>(this_bits) - this_prec};
-  auto other_msb{static_cast<std::intmax_t>(other_bits) - other_prec};
-  if (this_msb != other_msb) {
-    return ((this_msb < other_msb) == (this_sign > 0))
-               ? std::strong_ordering::less
-               : std::strong_ordering::greater;
-  }
-
-  for (std::intmax_t i{this_msb - 1}; i <= this_prec && i <= other_prec; i--) {
-    auto x{(*this)[i + this_prec]};
-    auto y{other[i + other_prec]};
-    if (x != y) {
-      return (x == (this_sign > 0)) ? std::strong_ordering::greater
-                                    : std::strong_ordering::less;
-    }
-  }
-
-  return std::strong_ordering::equal;
+  return cmp == std::strong_ordering::less ? std::strong_ordering::greater
+                                           : std::strong_ordering::less;
 }
 
 Longnum &Longnum::operator+=(const Longnum &other) {
@@ -97,13 +76,13 @@ Longnum &Longnum::operator+=(const Longnum &other) {
       digits[i] = static_cast<Digit>(val);
     }
   } else {
-    int bigger = abs_compare(num);
-    if (bigger == 0) {
+    auto bigger = abs_compare(num);
+    if (bigger == std::strong_ordering::equal) {
       *this = Longnum(0);
       return *this;
     }
 
-    if (bigger == -1) {
+    if (bigger == std::strong_ordering::less) {
       negative = num.negative;
     }
 
@@ -111,7 +90,7 @@ Longnum &Longnum::operator+=(const Longnum &other) {
     digits.resize(std::max(digits.size(), num.digits.size()) + 1, 0);
     for (std::size_t i{0}; i < digits.size(); i++) {
       DoubleDigit val{carry};
-      if (bigger == 1) {
+      if (bigger == std::strong_ordering::greater) {
         val += static_cast<DoubleDigit>(digits[i]);
         if (i < num.digits.size()) {
           val -= static_cast<DoubleDigit>(num.digits[i]);
@@ -220,21 +199,36 @@ Longnum Longnum::operator/(const Longnum &other) const {
   return x /= other;
 }
 
-int Longnum::abs_compare(const Longnum &other) const {
-  Longnum a{*this}, b{other};
-  a.align_with(b);
+std::strong_ordering Longnum::abs_compare(const Longnum &other) const {
+  auto this_sign{sign()};
+  auto other_sign{other.sign()};
 
-  if (a.digits.size() != b.digits.size()) {
-    return a.digits.size() < b.digits.size() ? -1 : 1;
+  if (this_sign == 0 && other_sign == 0) {
+    return std::strong_ordering::equal;
   }
 
-  for (std::size_t i{a.digits.size() - 1}; i < a.digits.size(); i--) {
-    if (a.digits[i] != b.digits[i]) {
-      return a.digits[i] < b.digits[i] ? -1 : 1;
+  auto this_bits{bits_in_absolute_value()};
+  auto other_bits{other.bits_in_absolute_value()};
+
+  auto this_prec{get_precision()};
+  auto other_prec{other.get_precision()};
+
+  auto this_msb{static_cast<std::intmax_t>(this_bits) - this_prec};
+  auto other_msb{static_cast<std::intmax_t>(other_bits) - other_prec};
+  if (this_msb != other_msb) {
+    return this_msb < other_msb ? std::strong_ordering::less
+                                : std::strong_ordering::greater;
+  }
+
+  for (std::intmax_t i{this_msb - 1}; i <= this_prec && i <= other_prec; i--) {
+    auto x{(*this)[i + this_prec]};
+    auto y{other[i + other_prec]};
+    if (x != y) {
+      return x ? std::strong_ordering::greater : std::strong_ordering::less;
     }
   }
 
-  return 0;
+  return std::strong_ordering::equal;
 }
 
 void Longnum::align_with(Longnum &other) {

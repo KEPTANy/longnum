@@ -4,7 +4,7 @@
 
 namespace ln {
 
-Longnum::Longnum(std::int32_t precision)
+Longnum::Longnum(Precision precision)
     : digits{}, precision{precision}, negative{false} {}
 
 std::size_t Longnum::bits_in_absolute_value() const {

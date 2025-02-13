@@ -37,10 +37,10 @@ public:
   Longnum &operator=(Longnum &&other) = default;
 
   // Initializes with 0.
-  Longnum(std::int32_t precision = 0);
+  Longnum(Precision precision = 0);
 
   // Initialization with any primitive integral value, works as expected.
-  template <std::integral T> Longnum(T other, std::int32_t precision = 0);
+  template <std::integral T> Longnum(T other, Precision precision = 0);
 
   // Initialization with any IEEE 754 primitive floating-point value, the
   // precision stays the same as in `other`. `other` must be a finite number.
@@ -94,7 +94,7 @@ Longnum operator""_longnum(unsigned long long other);
 } // namespace ln
 
 template <std::integral T>
-ln::Longnum::Longnum(T other, std::int32_t precision)
+ln::Longnum::Longnum(T other, Precision precision)
     : precision{precision}, negative{other < 0} {
   using UnsignedT = std::make_unsigned_t<T>;
 

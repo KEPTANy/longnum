@@ -193,10 +193,7 @@ bool Longnum::operator[](std::intmax_t index) const {
 
 namespace lits {
 
-Longnum operator""_longnum(long double other) {
-  return Longnum(static_cast<double>(other));
-}
-
+Longnum operator""_longnum(long double other) { return Longnum(other); }
 Longnum operator""_longnum(unsigned long long other) { return Longnum(other); }
 
 } // namespace lits

@@ -42,8 +42,8 @@ public:
   // Initialization with any primitive integral value, works as expected.
   template <std::integral T> Longnum(T other, Precision precision = 0);
 
-  // Initialization with any IEEE 754 primitive floating-point value, the
-  // precision stays the same as in `other`. `other` must be a finite number.
+  // Initialization with any primitive floating-point value.
+  // `other` must be a finite number.
   template <std::floating_point T> Longnum(T other);
 
   std::size_t bits_in_absolute_value() const;
@@ -107,40 +107,21 @@ ln::Longnum::Longnum(T other, Precision precision)
 
 template <std::floating_point T>
 ln::Longnum::Longnum(T other) : negative{std::signbit(other)} {
-  static_assert(sizeof(T) * CHAR_BIT <= 64,
-                "Value should be at most 64-bit wide");
-  static_assert(std::numeric_limits<T>::is_iec559,
-                "IEEE 754 compliant type required");
-
   const auto fp_type{std::fpclassify(other)};
   if (fp_type == FP_INFINITE || fp_type == FP_NAN) {
     throw std::invalid_argument("INF/NaN provided");
   }
 
-  // HACK: there's probably a better way to do this with a std::bit_cast, but
-  // i just couldn't get it to work properly
-  std::uintmax_t bits{0};
-  std::memcpy(&bits, &other, sizeof(T));
-
-  constexpr auto total_bits{sizeof(T) * CHAR_BIT};
   constexpr auto mant_bits{std::numeric_limits<T>::digits - 1};
-  constexpr auto exp_bits{total_bits - mant_bits - 1};
-  constexpr auto exp_bias{(1ull << (exp_bits - 1)) - 1};
+  constexpr auto min_exp{std::numeric_limits<T>::min_exponent - 1};
 
-  const auto raw_mant{bits & ((1ull << mant_bits) - 1)};
-  const auto raw_exp{(bits >> mant_bits) & ((1ull << exp_bits) - 1)};
+  const Precision exp{std::ilogb(other)};
 
-  int exp{static_cast<int>(raw_exp - exp_bias - mant_bits)};
-  std::uintmax_t mant{static_cast<std::uintmax_t>(raw_mant)};
-  if (raw_exp == 0) {
-    exp++;
-  } else {
-    // add implied bit back to mantissa
-    mant |= 1ull << mant_bits;
-  }
+  const auto normalized_float{std::abs(std::scalbn(other, mant_bits - exp))};
+  const auto mantissa{static_cast<std::uintmax_t>(normalized_float)};
 
-  set_digits(mant);
-  precision = exp;
+  set_digits(mantissa);
+  precision = (mantissa == 0) ? min_exp - mant_bits : exp;
   remove_leading_zeros();
 }
 

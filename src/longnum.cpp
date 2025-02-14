@@ -22,14 +22,15 @@ void Longnum::flip_sign() {
 }
 
 void Longnum::set_precision(Longnum::Precision new_prec) {
-  if (new_prec == precision) {
+  auto old_prec{get_precision()};
+  if (new_prec == old_prec) {
     return;
   }
 
-  if (new_prec > precision) {
-    *this << (new_prec - precision);
+  if (new_prec > old_prec) {
+    *this <<= (new_prec - old_prec);
   } else {
-    *this >> (precision - new_prec);
+    *this >>= (precision - old_prec);
   }
 
   precision = new_prec;
@@ -56,13 +57,6 @@ std::strong_ordering Longnum::operator<=>(const Longnum &other) const {
 }
 
 std::strong_ordering Longnum::abs_compare(const Longnum &other) const {
-  auto this_sign{sign()};
-  auto other_sign{other.sign()};
-
-  if (this_sign == 0 && other_sign == 0) {
-    return std::strong_ordering::equal;
-  }
-
   auto this_bits{bits_in_absolute_value()};
   auto other_bits{other.bits_in_absolute_value()};
 
@@ -77,8 +71,8 @@ std::strong_ordering Longnum::abs_compare(const Longnum &other) const {
   }
 
   for (std::intmax_t i{this_msb - 1}; i <= this_prec && i <= other_prec; i--) {
-    auto x{(*this)[i + this_prec]};
-    auto y{other[i + other_prec]};
+    auto x{(*this)[i]};
+    auto y{other[i]};
     if (x != y) {
       return x ? std::strong_ordering::greater : std::strong_ordering::less;
     }
@@ -121,9 +115,14 @@ void Longnum::set_digits(std::uintmax_t num) {
   }
 }
 
-void Longnum::operator<<(std::size_t sh) {
+Longnum Longnum::operator<<(std::size_t sh) const {
+  Longnum x{*this};
+  return x <<= sh;
+}
+
+Longnum &Longnum::operator<<=(std::size_t sh) {
   if (sign() == 0) {
-    return;
+    return *this;
   }
 
   const auto full_digits{sh / digit_bits};
@@ -132,57 +131,64 @@ void Longnum::operator<<(std::size_t sh) {
 
   sh %= digit_bits;
   if (sh == 0) {
-    return;
+    return *this;
   }
 
-  DoubleDigit carry{0};
+  Digit carry{0};
   for (auto &curr : digits) {
-    DoubleDigit shifted = (static_cast<DoubleDigit>(curr) << sh) + carry;
-    carry = shifted >> (digit_bits - sh);
-    curr = static_cast<Digit>(shifted);
+    Digit shifted = (curr << sh) | carry;
+    carry = curr >> (digit_bits - sh);
+    curr = shifted;
   }
 
   if (carry != 0) {
-    digits.push_back(static_cast<Digit>(carry));
+    digits.push_back(carry);
   }
 
   remove_leading_zeros();
+  return *this;
 }
 
-void Longnum::operator>>(std::size_t sh) {
+Longnum Longnum::operator>>(std::size_t sh) const {
+  Longnum x{*this};
+  return x >>= sh;
+}
+
+Longnum &Longnum::operator>>=(std::size_t sh) {
   if (sign() == 0) {
-    return;
+    return *this;
   }
 
   const auto full_digits{sh / digit_bits};
   if (full_digits >= digits.size()) {
-    *this = Longnum(0);
-    return;
+    return (*this = Longnum(0));
   }
 
   digits.erase(digits.begin(), digits.begin() + full_digits);
 
   sh %= digit_bits;
   if (sh == 0) {
-    return;
+    return *this;
   }
 
-  DoubleDigit carry{0};
+  Digit carry{0};
   for (auto &curr : std::ranges::reverse_view(digits)) {
-    DoubleDigit shifted = (static_cast<DoubleDigit>(curr) >> sh) + carry;
-    carry = shifted << (digit_bits - sh);
-    curr = static_cast<Digit>(shifted);
+    Digit shifted = (curr >> sh) | carry;
+    carry = curr << (digit_bits - sh);
+    curr = shifted;
   }
 
   remove_leading_zeros();
+  return *this;
 }
 
 bool Longnum::operator[](std::intmax_t index) const {
-  if (index < 0 ||
-      static_cast<std::size_t>(index) / digit_bits >= digits.size()) {
+  const auto real_index{index - get_precision()};
+  if (real_index < 0 ||
+      static_cast<std::size_t>(real_index) / digit_bits >= digits.size()) {
     return false;
   }
-  return static_cast<bool>(digits[index / digit_bits] >> (index % digit_bits));
+  return static_cast<bool>(digits[real_index / digit_bits] >> (real_index % digit_bits));
 }
 
 namespace lits {

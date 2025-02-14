@@ -160,10 +160,10 @@ private:
   Longnum &operator>>=(std::size_t sh);
 
   // Get `i`'th digit in radix 2^`digit_bits`.
-  Digit get_digit(std::intmax_t i);
+  Digit get_digit(std::intmax_t i) const;
 
   // Get `i`'th digit in radix 2.
-  bool get_bit(std::intmax_t i);
+  bool get_bit(std::intmax_t i) const;
 };
 
 namespace lits {

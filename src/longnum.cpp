@@ -182,7 +182,7 @@ Longnum &Longnum::operator>>=(std::size_t sh) {
   return *this;
 }
 
-bool Longnum::operator[](std::intmax_t index) const {
+bool Longnum::get_bit(std::intmax_t index) const {
   const auto real_index{index - get_precision()};
   if (real_index < 0 ||
       static_cast<std::size_t>(real_index) / digit_bits >= digits.size()) {

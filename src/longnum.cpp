@@ -48,17 +48,11 @@ std::strong_ordering Longnum::operator<=>(const Longnum &other) const {
   auto other_sign{other.sign()};
 
   if (this_sign != other_sign) {
-    return this_sign < other_sign ? std::strong_ordering::less
-                                  : std::strong_ordering::greater;
+    return this_sign <=> other_sign;
   }
 
   auto cmp = abs_compare(other);
-  if (this_sign >= 0) {
-    return cmp;
-  }
-
-  return cmp == std::strong_ordering::less ? std::strong_ordering::greater
-                                           : std::strong_ordering::less;
+  return this_sign >= 0 ? cmp : 0 <=> cmp;
 }
 
 std::strong_ordering Longnum::abs_compare(const Longnum &other) const {

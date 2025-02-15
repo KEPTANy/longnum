@@ -52,7 +52,7 @@ std::strong_ordering Longnum::operator<=>(const Longnum &other) const {
     return this_sign <=> other_sign;
   }
 
-  auto cmp = abs_compare(other);
+  auto cmp{abs_compare(other)};
   return this_sign >= 0 ? cmp : 0 <=> cmp;
 }
 
@@ -101,20 +101,6 @@ void Longnum::remove_leading_zeros() {
   }
 }
 
-void Longnum::set_digits(std::uintmax_t num) {
-  constexpr auto bits{std::numeric_limits<std::uintmax_t>::digits};
-
-  const auto digits_needed{(bits + digit_bits - 1) / digit_bits};
-  digits.reserve(digits_needed);
-
-  for (std::size_t i{0}; i < digits_needed; i++) {
-    const auto shift{i * digit_bits};
-    constexpr auto mask{std::numeric_limits<Digit>::max()};
-
-    digits.emplace_back((num >> shift) & mask);
-  }
-}
-
 Longnum Longnum::operator<<(std::size_t sh) const {
   Longnum x{*this};
   return x <<= sh;
@@ -136,7 +122,7 @@ Longnum &Longnum::operator<<=(std::size_t sh) {
 
   Digit carry{0};
   for (auto &curr : digits) {
-    Digit shifted = (curr << sh) | carry;
+    Digit shifted{(curr << sh) | carry};
     carry = curr >> (digit_bits - sh);
     curr = shifted;
   }
@@ -173,7 +159,7 @@ Longnum &Longnum::operator>>=(std::size_t sh) {
 
   Digit carry{0};
   for (auto &curr : std::ranges::reverse_view(digits)) {
-    Digit shifted = (curr >> sh) | carry;
+    Digit shifted{(curr >> sh) | carry};
     carry = curr << (digit_bits - sh);
     curr = shifted;
   }
@@ -188,7 +174,7 @@ bool Longnum::get_bit(std::intmax_t index) const {
       static_cast<std::size_t>(real_index) / digit_bits >= digits.size()) {
     return false;
   }
-  return static_cast<bool>(digits[real_index / digit_bits] >> (real_index % digit_bits));
+  return digits[real_index / digit_bits] >> (real_index % digit_bits);
 }
 
 namespace lits {

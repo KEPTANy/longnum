@@ -144,9 +144,6 @@ private:
   // Removes leading zeros. Needed to save memory and handle zero.
   void remove_leading_zeros();
 
-  // Fills last bits of the number with ones in `digits`.
-  void set_digits(std::uintmax_t digits);
-
   // Bitshift to the left. Works the same as multiplying by 2^`sh`.
   Longnum operator<<(std::size_t sh) const;
 
@@ -162,8 +159,14 @@ private:
   // Get `i`'th digit in radix 2^`digit_bits`.
   Digit get_digit(std::intmax_t i) const;
 
+  // Set `i`'th digit in radix 2^`digit_bits`.
+  void set_digit(std::intmax_t i, Digit digit);
+
   // Get `i`'th digit in radix 2.
   bool get_bit(std::intmax_t i) const;
+
+  // Set `i`'th digit in radix 2.
+  void set_bit(std::intmax_t i, bool bit);
 };
 
 namespace lits {

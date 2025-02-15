@@ -157,16 +157,16 @@ private:
   Longnum &operator>>=(std::size_t sh);
 
   // Get `i`'th digit in radix 2^`digit_bits`.
-  Digit get_digit(std::intmax_t i) const;
+  Digit get_digit(std::intmax_t index) const;
 
   // Set `i`'th digit in radix 2^`digit_bits`.
-  void set_digit(std::intmax_t i, Digit digit);
+  void set_digit(std::intmax_t index, Digit digit);
 
   // Get `i`'th digit in radix 2.
-  bool get_bit(std::intmax_t i) const;
+  bool get_bit(std::intmax_t index) const;
 
   // Set `i`'th digit in radix 2.
-  void set_bit(std::intmax_t i, bool bit);
+  void set_bit(std::intmax_t index, bool bit);
 };
 
 namespace lits {

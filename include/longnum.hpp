@@ -189,7 +189,11 @@ ln::Longnum::Longnum(T other, Precision precision)
   const UnsignedT abs_value{negative ? -static_cast<UnsignedT>(other)
                                      : static_cast<UnsignedT>(other)};
 
-  set_digits(static_cast<std::uintmax_t>(abs_value));
+  constexpr auto bits{std::numeric_limits<UnsignedT>::digits};
+  for (std::intmax_t i{0}; i < bits; i++) {
+    set_bit(i, (abs_value >> i) & 1);
+  }
+
   remove_leading_zeros();
 }
 
@@ -208,8 +212,13 @@ ln::Longnum::Longnum(T other) : negative{std::signbit(other)} {
   const auto normalized_float{std::abs(std::scalbn(other, mant_bits - exp))};
   const auto mantissa{static_cast<std::uintmax_t>(normalized_float)};
 
-  set_digits(mantissa);
   precision = (mantissa == 0) ? min_exp - mant_bits : exp;
+
+  constexpr auto bits{std::numeric_limits<std::uintmax_t>::digits};
+  for (std::intmax_t i{0}; i < bits; i++) {
+    set_bit(i + get_precision(), (mantissa >> i) & 1);
+  }
+
   remove_leading_zeros();
 }
 

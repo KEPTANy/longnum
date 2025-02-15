@@ -177,6 +177,24 @@ bool Longnum::get_bit(std::intmax_t index) const {
   return digits[real_index / digit_bits] >> (real_index % digit_bits);
 }
 
+void Longnum::set_bit(std::intmax_t index, bool bit) {
+  auto real_index{index - get_precision()};
+
+  if (real_index < 0) {
+    return;
+  }
+
+  const auto digits_needed{(real_index + digit_bits - 1) / digit_bits};
+  digits.reserve(digits_needed);
+
+  Digit &val{digits[real_index / digit_bits]};
+  if (bit) {
+    val |= static_cast<Digit>(1) << (real_index % digit_bits);
+  } else {
+    val &= ~(static_cast<Digit>(1) << (real_index % digit_bits));
+  }
+}
+
 namespace lits {
 
 Longnum operator""_longnum(long double other) { return Longnum(other); }

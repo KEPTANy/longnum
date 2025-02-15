@@ -168,6 +168,42 @@ Longnum &Longnum::operator>>=(std::size_t sh) {
   return *this;
 }
 
+// TODO: can be sped up by getting two consecutive digits
+Longnum::Digit Longnum::get_digit(std::intmax_t index) const {
+  if (get_precision() % digit_bits == 0) {
+    index += get_precision() / digit_bits;
+    return index >= 0 && static_cast<std::size_t>(index) < digits.size()
+               ? digits[index]
+               : 0;
+  }
+
+  auto real_index{index * digit_bits - get_precision()};
+  Digit res{0};
+  for (std::intmax_t bit{0}; bit < digit_bits; bit++) {
+    if (get_bit(bit + real_index)) {
+      res |= static_cast<Digit>(1) << bit;
+    }
+  }
+
+  return res;
+}
+
+// TODO: can be sped up by getting two consecutive digits
+void Longnum::set_digit(std::intmax_t index, Digit digit) {
+  if (get_precision() % digit_bits == 0) {
+    index += get_precision() / digit_bits;
+    if (index >= 0 && static_cast<std::size_t>(index) < digits.size()) {
+      digits[index] = digit;
+    }
+    return;
+  }
+  
+  auto real_index{index * digit_bits - get_precision()};
+  for (std::intmax_t bit{0}; bit < digit_bits; bit++) {
+    set_bit(bit + real_index, digit & (static_cast<Digit>(1) << bit));
+  }
+}
+
 bool Longnum::get_bit(std::intmax_t index) const {
   const auto real_index{index - get_precision()};
   if (real_index < 0 ||

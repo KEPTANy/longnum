@@ -160,13 +160,13 @@ private:
   Digit get_digit(std::intmax_t index) const;
 
   // Set `i`'th digit in radix 2^`digit_bits`.
-  void set_digit(std::intmax_t index, Digit digit);
+  void set_digit(std::intmax_t index, Digit digit, bool remove_zeros = false);
 
   // Get `i`'th digit in radix 2.
   bool get_bit(std::intmax_t index) const;
 
   // Set `i`'th digit in radix 2.
-  void set_bit(std::intmax_t index, bool bit);
+  void set_bit(std::intmax_t index, bool bit, bool remove_zeros = false);
 };
 
 namespace lits {

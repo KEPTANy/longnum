@@ -190,7 +190,7 @@ Longnum::Digit Longnum::get_digit(std::intmax_t index) const {
 }
 
 // TODO: can be sped up by getting two consecutive digits
-void Longnum::set_digit(std::intmax_t index, Digit digit) {
+void Longnum::set_digit(std::intmax_t index, Digit digit, bool remove_zeros) {
   if (get_precision() % digit_bits == 0) {
     index += get_precision() / digit_bits;
     if (index >= 0 && static_cast<std::size_t>(index) < digits.size()) {
@@ -203,6 +203,10 @@ void Longnum::set_digit(std::intmax_t index, Digit digit) {
   for (std::intmax_t bit{0}; bit < digit_bits; bit++) {
     set_bit(bit + real_index, digit & (static_cast<Digit>(1) << bit));
   }
+
+  if (remove_zeros) {
+    remove_leading_zeros();
+  }
 }
 
 bool Longnum::get_bit(std::intmax_t index) const {
@@ -214,7 +218,7 @@ bool Longnum::get_bit(std::intmax_t index) const {
   return digits[real_index / digit_bits] >> (real_index % digit_bits);
 }
 
-void Longnum::set_bit(std::intmax_t index, bool bit) {
+void Longnum::set_bit(std::intmax_t index, bool bit, bool remove_zeros) {
   auto real_index{index - get_precision()};
 
   if (real_index < 0) {
@@ -229,6 +233,10 @@ void Longnum::set_bit(std::intmax_t index, bool bit) {
     val |= static_cast<Digit>(1) << (real_index % digit_bits);
   } else {
     val &= ~(static_cast<Digit>(1) << (real_index % digit_bits));
+  }
+
+  if (remove_zeros) {
+    remove_leading_zeros();
   }
 }
 

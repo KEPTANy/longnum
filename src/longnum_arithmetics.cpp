@@ -133,43 +133,48 @@ Longnum &Longnum::operator*=(const Longnum &other) {
   return *this;
 }
 
+Longnum Longnum::operator/(const Longnum &other) const {
+  return div_mod(other).first;
+}
+
 Longnum &Longnum::operator/=(const Longnum &other) {
-  if (other.sign() == 0) {
+  return *this = div_mod(other).first;
+}
+  
+Longnum Longnum::operator%(const Longnum &other) const {
+  return div_mod(other).second;
+}
+
+Longnum &Longnum::operator%=(const Longnum &other) {
+  return *this = div_mod(other).second;
+}
+
+std::pair<Longnum, Longnum> Longnum::div_mod(const Longnum &other) const {
+  auto this_sign{sign()};
+  auto other_sign{other.sign()};
+
+  if (other_sign == 0) {
     throw std::invalid_argument("Division by zero is not allowed");
   }
 
-  Longnum res{0};
-  res.set_precision(precision);
+  if (this_sign == 0) {
+    return {0, 0};
+  }
 
-  Longnum buff{0};
-  buff.set_precision(precision);
+  Longnum quotient{};
+  quotient.set_precision(std::max(get_precision(), other.get_precision()));
 
   std::size_t bits{bits_in_absolute_value() + other.bits_in_absolute_value()};
-  res.digits.reserve((bits + digit_bits - 1) / digit_bits);
-  buff.digits.reserve((bits + digit_bits - 1) / digit_bits);
-
   for (std::size_t bit{bits - 1}; bit < bits; bit--) {
-    if (bit != bits - 1) {
-      buff.digits[(bit + 1) / digit_bits] ^= static_cast<Digit>(1)
-                                             << ((bit + 1) % digit_bits);
-    }
-    buff.digits[bit / digit_bits] ^= static_cast<Digit>(1)
-                                     << (bit % digit_bits);
-
-    if (buff * other <= *this) {
-      res.digits[bit / digit_bits] ^= static_cast<Digit>(1)
-                                      << (bit % digit_bits);
+    quotient.set_bit(bit + quotient.get_precision(), true);
+    if (abs_compare(quotient * other) < 0) {
+      quotient.set_bit(bit + quotient.get_precision(), false);
     }
   }
 
-  res.negative = negative != other.negative;
-  res.remove_leading_zeros();
-  return *this = res;
-}
-
-Longnum Longnum::operator/(const Longnum &other) const {
-  Longnum x{*this};
-  return x /= other;
+  quotient.negative = this_sign != other_sign;
+  quotient.remove_leading_zeros();
+  return {quotient, *this - quotient * other};
 }
 
 } // namespace ln

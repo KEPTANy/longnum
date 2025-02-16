@@ -2,61 +2,103 @@
 
 namespace ln {
 
+Longnum Longnum::operator+(const Longnum &other) const {
+  Longnum x{*this};
+  return x += other;
+}
+
 Longnum &Longnum::operator+=(const Longnum &other) {
-  Longnum num{other};
-  align_with(num);
-
-  if (negative == num.negative) {
-    Digit carry{0};
-    digits.resize(std::max(digits.size(), num.digits.size()) + 1, 0);
-    for (std::size_t i{0}; i < digits.size(); i++) {
-      DoubleDigit val{static_cast<DoubleDigit>(digits[i]) + carry};
-      if (i < num.digits.size()) {
-        val += num.digits[i];
-      }
-      carry = val >> digit_bits;
-      digits[i] = static_cast<Digit>(val);
-    }
-  } else {
-    auto bigger = abs_compare(num);
-    if (bigger == std::strong_ordering::equal) {
-      *this = Longnum(0);
-      return *this;
-    }
-
-    if (bigger == std::strong_ordering::less) {
-      negative = num.negative;
-    }
-
-    DoubleDigit carry{0};
-    digits.resize(std::max(digits.size(), num.digits.size()) + 1, 0);
-    for (std::size_t i{0}; i < digits.size(); i++) {
-      DoubleDigit val{carry};
-      if (bigger == std::strong_ordering::greater) {
-        val += static_cast<DoubleDigit>(digits[i]);
-        if (i < num.digits.size()) {
-          val -= static_cast<DoubleDigit>(num.digits[i]);
-        }
-      } else {
-        val -= static_cast<DoubleDigit>(digits[i]);
-        if (i < num.digits.size()) {
-          val += static_cast<DoubleDigit>(num.digits[i]);
-        }
-      }
-
-      digits[i] = static_cast<Digit>(val);
-      carry = static_cast<Digit>(val >> digit_bits);
-    }
+  if (other.sign() == 0) {
+    return *this;
   }
 
+  if (sign() == 0) {
+    return *this = other;
+  }
+
+  if (sign() != other.sign()) {
+    flip_sign();
+    *this -= other;
+    flip_sign();
+    return *this;
+  }
+
+  Longnum aligned_other{other};
+  align_with(aligned_other);
+
+  digits.resize(std::max(digits.size(), aligned_other.digits.size()) + 1, 0);
+  Digit carry{0};
+  for (std::size_t i{0}; i < digits.size(); i++) {
+    DoubleDigit val{carry};
+    val += digits[i];
+    if (i < aligned_other.digits.size()) {
+      val += aligned_other.digits[i];
+    }
+    digits[i] = static_cast<Digit>(val);
+    carry = val >> digit_bits;
+  }
+  
   remove_leading_zeros();
   return *this;
 }
 
+Longnum Longnum::operator-() const {
+  Longnum x{*this};
+  x.flip_sign();
+  return x;
+}
+
+Longnum Longnum::operator-(const Longnum &other) const {
+  Longnum x{*this};
+  return x -= other;
+}
+
 Longnum &Longnum::operator-=(const Longnum &other) {
-  flip_sign();
-  *this += other;
-  flip_sign();
+  if (other.sign() == 0) {
+    return *this;
+  }
+
+  if (sign() == 0) {
+    return *this = -other;
+  }
+
+  if (sign() != other.sign()) {
+    flip_sign();
+    *this += other;
+    flip_sign();
+    return *this;
+  }
+
+  Longnum aligned_other{other};
+  align_with(aligned_other);
+
+  auto cmp = abs_compare(aligned_other);
+  if (cmp == 0) {
+    digits.clear();
+    negative = false;
+    return *this;
+  }
+
+  if (cmp < 0) {
+    flip_sign();
+  }
+
+  auto &a{cmp < 0 ? aligned_other.digits : digits};
+  auto &b{cmp < 0 ? digits : aligned_other.digits};
+
+  digits.resize(std::max(digits.size(), aligned_other.digits.size()), 0);
+  Digit borrow{0};
+  for (std::size_t i{0}; i < digits.size(); i++) {
+    DoubleDigit val{a[i]};
+    if (i < b.size()) {
+      val -= b[i];
+    }
+    val -= borrow;
+    digits[i] = static_cast<Digit>(val);
+    borrow = (val >> digit_bits) ? 1 : 0;
+  }
+
+  remove_leading_zeros();
   return *this;
 }
 
@@ -113,22 +155,6 @@ Longnum &Longnum::operator/=(const Longnum &other) {
   res.negative = negative != other.negative;
   res.remove_leading_zeros();
   return *this = res;
-}
-
-Longnum Longnum::operator-() const {
-  Longnum x{*this};
-  x.flip_sign();
-  return x;
-}
-
-Longnum Longnum::operator+(const Longnum &other) const {
-  Longnum x{*this};
-  return x += other;
-}
-
-Longnum Longnum::operator-(const Longnum &other) const {
-  Longnum x{*this};
-  return x -= other;
 }
 
 Longnum Longnum::operator*(const Longnum &other) const {

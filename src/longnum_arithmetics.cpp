@@ -140,7 +140,7 @@ Longnum Longnum::operator/(const Longnum &other) const {
 Longnum &Longnum::operator/=(const Longnum &other) {
   return *this = div_mod(other).first;
 }
-  
+
 Longnum Longnum::operator%(const Longnum &other) const {
   return div_mod(other).second;
 }

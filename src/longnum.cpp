@@ -4,8 +4,7 @@
 
 namespace ln {
 
-Longnum::Longnum(Precision precision)
-    : digits{}, precision{precision}, negative{false} {}
+Longnum::Longnum() : digits{}, precision{0}, negative{false} {}
 
 std::size_t Longnum::bits_in_absolute_value() const {
   return sign() == 0
@@ -199,7 +198,7 @@ void Longnum::set_digit(std::intmax_t index, Digit digit) {
     }
     return;
   }
-  
+
   auto real_index{index * digit_bits - get_precision()};
   for (std::intmax_t bit{0}; bit < digit_bits; bit++) {
     set_bit(bit + real_index, digit & (static_cast<Digit>(1) << bit));

@@ -37,8 +37,8 @@ public:
   Longnum(Longnum &&other) = default;
   Longnum &operator=(Longnum &&other) = default;
 
-  // Initialization with 0 and (optionally) given precision.
-  Longnum(Precision precision = 0);
+  // Initialization with 0 and precision of 0.
+  Longnum();
 
   // Initialization with any primitive integral value and (optionally) given
   // precision.

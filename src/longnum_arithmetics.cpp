@@ -37,7 +37,7 @@ Longnum &Longnum::operator+=(const Longnum &other) {
     digits[i] = static_cast<Digit>(val);
     carry = val >> digit_bits;
   }
-  
+
   remove_leading_zeros();
   return *this;
 }
@@ -102,8 +102,17 @@ Longnum &Longnum::operator-=(const Longnum &other) {
   return *this;
 }
 
+Longnum Longnum::operator*(const Longnum &other) const {
+  Longnum x{*this};
+  return x *= other;
+}
+
 Longnum &Longnum::operator*=(const Longnum &other) {
-  negative = negative != other.negative;
+  if (sign() == 0 || other.sign() == 0) {
+    return *this = 0;
+  }
+
+  negative = sign() != other.sign();
 
   std::vector<Digit> new_digits(digits.size() + other.digits.size(), 0);
   for (std::size_t i{0}; i < digits.size(); i++) {
@@ -116,8 +125,9 @@ Longnum &Longnum::operator*=(const Longnum &other) {
     }
   }
 
-  std::swap(new_digits, digits);
-  precision += other.precision;
+  digits = std::move(new_digits);
+  precision += other.get_precision();
+  set_precision(std::max(get_precision(), other.get_precision()));
 
   remove_leading_zeros();
   return *this;
@@ -155,11 +165,6 @@ Longnum &Longnum::operator/=(const Longnum &other) {
   res.negative = negative != other.negative;
   res.remove_leading_zeros();
   return *this = res;
-}
-
-Longnum Longnum::operator*(const Longnum &other) const {
-  Longnum x{*this};
-  return x *= other;
 }
 
 Longnum Longnum::operator/(const Longnum &other) const {

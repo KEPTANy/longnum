@@ -74,6 +74,12 @@ public:
   // The usual spaceship operator, nothing crazy.
   std::strong_ordering operator<=>(const Longnum &other) const;
 
+  // Checks if the numbers are equal
+  bool operator==(const Longnum &other) const;
+
+  // Checks if the numbers are different
+  bool operator!=(const Longnum &other) const;
+
   // Adds two numbers. Max precision of the operands is kept.
   Longnum operator+(const Longnum &other) const;
 

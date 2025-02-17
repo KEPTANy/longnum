@@ -123,6 +123,14 @@ std::strong_ordering Longnum::abs_compare(const Longnum &other) const {
   return std::strong_ordering::equal;
 }
 
+bool Longnum::operator==(const Longnum &other) const {
+  return (*this <=> other) == 0;
+}
+
+bool Longnum::operator!=(const Longnum &other) const {
+  return !(*this == other);
+}
+
 void Longnum::align_with(Longnum &other) {
   const auto this_precision{get_precision()};
   const auto other_precision{other.get_precision()};

@@ -43,14 +43,14 @@ TEST_CASE("Integral constructor") {
         CHECK(num1.get_precision() == 0);
         CHECK(num1.to_string(0) == "5");
 
-        Longnum num2(12345, -10);
+        Longnum num2(12345, 10);
         CHECK(num2.sign() > 0);
-        CHECK(num2.get_precision() == -10);
+        CHECK(num2.get_precision() == 10);
         CHECK(num2.to_string(3) == "12345.000");
 
-        Longnum num3(12345, 10);
+        Longnum num3(12345, -10);
         CHECK(num3.sign() > 0);
-        CHECK(num3.get_precision() == 10);
+        CHECK(num3.get_precision() == -10);
         CHECK(num3.to_string(3) == "12288.000");
     }
 
@@ -60,14 +60,14 @@ TEST_CASE("Integral constructor") {
         CHECK(num1.get_precision() == 0);
         CHECK(num1.to_string(0) == "-3");
 
-        Longnum num2(-987, -34);
+        Longnum num2(-987, 34);
         CHECK(num2.sign() == -1);
-        CHECK(num2.get_precision() == -34);
+        CHECK(num2.get_precision() == 34);
         CHECK(num2.to_string(10) == "-987.0000000000");
 
-        Longnum num3(-12345, 10);
+        Longnum num3(-12345, -10);
         CHECK(num3.sign() < 0);
-        CHECK(num3.get_precision() == 10);
+        CHECK(num3.get_precision() == -10);
         CHECK(num3.to_string(3) == "-12288.000");
     }
 
@@ -169,13 +169,13 @@ TEST_CASE("Literals") {
     SUBCASE("Floating literals") {
         auto num1 = 12.5_longnum;
         CHECK(num1.to_string(1) == "12.5");
-        CHECK(num1.get_precision() < 0);
+        CHECK(num1.get_precision() > 0);
 
         auto num2 = 3.141592653589793238_longnum;
         CHECK(num2.to_string(18) == "3.141592653589793238");
 
         auto num3 = -0.0_longnum;
         CHECK(num3.to_string(1) == "0.0");
-        CHECK(num3.get_precision() < 0);
+        CHECK(num3.get_precision() > 0);
     }
 }

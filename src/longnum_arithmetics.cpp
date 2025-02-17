@@ -127,7 +127,7 @@ Longnum Longnum::operator*(const Longnum &other) const {
   }
 
   res.negative = sign() != other.sign();
-  res.set_precision(std::min(get_precision(), other.get_precision()));
+  res.set_precision(std::max(get_precision(), other.get_precision()));
   res.remove_leading_zeros();
   return res;
 }
@@ -165,13 +165,13 @@ std::pair<Longnum, Longnum> Longnum::div_mod(const Longnum &other) const {
   }
 
   Longnum quotient{};
-  quotient.set_precision(std::min(get_precision(), other.get_precision()));
+  quotient.set_precision(std::max(get_precision(), other.get_precision()));
 
   std::size_t bits{bits_in_absolute_value() + other.bits_in_absolute_value()};
   for (std::size_t bit{bits - 1}; bit < bits; bit--) {
-    quotient.set_bit(bit + quotient.get_precision(), true);
+    quotient.set_bit(bit - quotient.get_precision(), true);
     if (abs_compare(quotient * other) < 0) {
-      quotient.set_bit(bit + quotient.get_precision(), false);
+      quotient.set_bit(bit - quotient.get_precision(), false);
     }
   }
 

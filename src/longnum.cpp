@@ -61,10 +61,10 @@ void Longnum::set_precision(Longnum::Precision new_prec) {
     return;
   }
 
-  if (new_prec < old_prec) {
-    *this <<= (old_prec - new_prec);
+  if (new_prec > old_prec) {
+    *this <<= (new_prec - old_prec);
   } else {
-    *this >>= (new_prec - old_prec);
+    *this >>= (old_prec - new_prec);
   }
 
   precision = new_prec;
@@ -103,15 +103,15 @@ std::strong_ordering Longnum::abs_compare(const Longnum &other) const {
   auto this_prec{get_precision()};
   auto other_prec{other.get_precision()};
 
-  auto this_msb{static_cast<std::intmax_t>(this_bits) - this_prec};
-  auto other_msb{static_cast<std::intmax_t>(other_bits) - other_prec};
+  auto this_msb{static_cast<std::intmax_t>(this_bits) + this_prec};
+  auto other_msb{static_cast<std::intmax_t>(other_bits) + other_prec};
   if (this_msb != other_msb) {
     return this_msb < other_msb ? std::strong_ordering::less
                                 : std::strong_ordering::greater;
   }
 
   auto max_digit{this_msb / digit_bits + 1};
-  auto min_digit{std::min(this_prec, other_prec) / digit_bits - 1};
+  auto min_digit{std::min(-this_prec, -other_prec) / digit_bits - 1};
   for (std::intmax_t i{max_digit}; i >= min_digit; i--) {
     auto x{this->get_digit(i)};
     auto y{other.get_digit(i)};
@@ -213,7 +213,7 @@ Longnum &Longnum::operator>>=(std::size_t sh) {
 // TODO: can be sped up by getting two consecutive digits
 Longnum::Digit Longnum::get_digit(std::intmax_t index) const {
   if (get_precision() % digit_bits == 0) {
-    index -= get_precision() / digit_bits;
+    index += get_precision() / digit_bits;
     return (index >= 0 && static_cast<std::size_t>(index) < digits.size())
                ? digits[index]
                : 0;
@@ -233,7 +233,7 @@ Longnum::Digit Longnum::get_digit(std::intmax_t index) const {
 // TODO: can be sped up by getting two consecutive digits
 void Longnum::set_digit(std::intmax_t index, Digit digit, bool remove_zeros) {
   if (get_precision() % digit_bits == 0) {
-    index -= get_precision() / digit_bits;
+    index += get_precision() / digit_bits;
     if (index >= 0 && static_cast<std::size_t>(index) < digits.size()) {
       digits[index] = digit;
     }
@@ -251,7 +251,7 @@ void Longnum::set_digit(std::intmax_t index, Digit digit, bool remove_zeros) {
 }
 
 bool Longnum::get_bit(std::intmax_t index) const {
-  const auto real_index{index - get_precision()};
+  const auto real_index{index + get_precision()};
   if (real_index < 0 ||
       static_cast<std::size_t>(real_index) / digit_bits >= digits.size()) {
     return false;
@@ -260,7 +260,7 @@ bool Longnum::get_bit(std::intmax_t index) const {
 }
 
 void Longnum::set_bit(std::intmax_t index, bool bit, bool remove_zeros) {
-  auto real_index{index - get_precision()};
+  auto real_index{index + get_precision()};
 
   if (real_index < 0) {
     return;

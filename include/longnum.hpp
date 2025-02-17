@@ -126,9 +126,10 @@ private:
   //    should be no leading zeros (e. g. zero is an empty vector and some
   //    functionality might want to rely on this property).
   //
-  // 2. `precision` is log2 of the difference between the two nearest numbers
-  //    that are currently representable. The absolute value of a number is
-  //                        `digits` * 2^`precision`
+  // 2. `precision` is opposite of log2 of the difference between the two
+  //    closest representable numbers.
+  //
+  //  Therefore, the absolute value of a number is `digits` * 2^(-`precision`)
   //
   // 3. `negative`, well, shows if a number is negative or non-negative.
 
@@ -215,11 +216,11 @@ ln::Longnum::Longnum(T other) : negative{std::signbit(other)} {
   const auto normalized_float{std::abs(std::scalbn(other, mant_bits - exp))};
   const auto mantissa{static_cast<std::uintmax_t>(normalized_float)};
 
-  precision = (mantissa == 0 ? min_exp : exp) - mant_bits;
+  precision = mant_bits - (mantissa == 0 ? min_exp : exp);
 
   constexpr auto bits{std::numeric_limits<std::uintmax_t>::digits};
   for (std::intmax_t i{0}; i < bits; i++) {
-    set_bit(i + get_precision(), (mantissa >> i) & 1);
+    set_bit(i - get_precision(), (mantissa >> i) & 1);
   }
 
   remove_leading_zeros();

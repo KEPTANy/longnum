@@ -2,8 +2,7 @@ NAME        := liblongnum.a
 
 SRC_DIR     := src
 INCLUDE_DIR := include
-SRCS        := longnum.cpp
-SRCS        := $(SRCS:%=$(SRC_DIR)/%)
+SRCS        := $(wildcard $(SRC_DIR)/*.cpp)
 
 BUILD_DIR   := build
 OBJS        := $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)

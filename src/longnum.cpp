@@ -61,10 +61,10 @@ void Longnum::set_precision(Longnum::Precision new_prec) {
     return;
   }
 
-  if (new_prec > old_prec) {
-    *this <<= (new_prec - old_prec);
+  if (new_prec < old_prec) {
+    *this <<= (old_prec - new_prec);
   } else {
-    *this >>= (precision - old_prec);
+    *this >>= (new_prec - old_prec);
   }
 
   precision = new_prec;

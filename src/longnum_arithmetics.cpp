@@ -103,34 +103,37 @@ Longnum &Longnum::operator-=(const Longnum &other) {
 }
 
 Longnum Longnum::operator*(const Longnum &other) const {
-  Longnum x{*this};
-  return x *= other;
-}
-
-Longnum &Longnum::operator*=(const Longnum &other) {
   if (sign() == 0 || other.sign() == 0) {
-    return *this = 0;
+    return 0;
   }
 
-  negative = sign() != other.sign();
+  Longnum res{};
+  res.digits.resize(digits.size() + other.digits.size(), 0);
+  res.precision = get_precision() + other.get_precision();
 
-  std::vector<Digit> new_digits(digits.size() + other.digits.size(), 0);
   for (std::size_t i{0}; i < digits.size(); i++) {
     DoubleDigit carry{0};
     for (std::size_t j{0}; j < other.digits.size(); j++) {
       DoubleDigit val{carry + static_cast<DoubleDigit>(digits[i]) *
                                   static_cast<DoubleDigit>(other.digits[j])};
+      val += res.digits[i + j];
+      res.digits[i + j] = static_cast<Digit>(val);
       carry = val >> digit_bits;
-      new_digits[i + j] += static_cast<Digit>(val);
+    }
+
+    if (carry != 0) {
+      res.digits[i + other.digits.size()] = carry;
     }
   }
 
-  digits = std::move(new_digits);
-  precision += other.get_precision();
-  set_precision(std::max(get_precision(), other.get_precision()));
+  res.negative = sign() != other.sign();
+  res.set_precision(std::min(get_precision(), other.get_precision()));
+  res.remove_leading_zeros();
+  return res;
+}
 
-  remove_leading_zeros();
-  return *this;
+Longnum &Longnum::operator*=(const Longnum &other) {
+  return *this = *this * other;
 }
 
 Longnum Longnum::operator/(const Longnum &other) const {

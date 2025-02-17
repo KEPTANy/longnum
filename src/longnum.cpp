@@ -112,7 +112,7 @@ std::strong_ordering Longnum::abs_compare(const Longnum &other) const {
 
   auto max_digit{this_msb / digit_bits + 1};
   auto min_digit{std::min(this_prec, other_prec) / digit_bits - 1};
-  for (std::intmax_t i{max_digit}; i <= min_digit; i--) {
+  for (std::intmax_t i{max_digit}; i >= min_digit; i--) {
     auto x{this->get_digit(i)};
     auto y{other.get_digit(i)};
     if (x != y) {

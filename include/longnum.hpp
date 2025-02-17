@@ -188,8 +188,9 @@ ln::Longnum::Longnum(T other, Precision precision)
     : precision{precision}, negative{other < 0} {
   using UnsignedT = std::make_unsigned_t<T>;
 
-  const UnsignedT abs_value{negative ? -static_cast<UnsignedT>(other)
-                                     : static_cast<UnsignedT>(other)};
+  const UnsignedT abs_value{
+      negative ? static_cast<UnsignedT>(-static_cast<UnsignedT>(other))
+               : static_cast<UnsignedT>(other)};
 
   constexpr auto bits{std::numeric_limits<UnsignedT>::digits};
   for (std::intmax_t i{0}; i < bits; i++) {

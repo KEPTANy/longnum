@@ -35,7 +35,7 @@ std::string Longnum::to_string(std::uint32_t fp_digits) const {
     }
   }
 
-  if (res.back() == '.') {
+  if (res.back() == '.' || res.empty()) {
     res += '0';
   }
 

@@ -1,6 +1,5 @@
 #include "doctest.h"
 
-#define LONGNUM_TEST_PRIVATE
 #include "longnum.hpp"
 
 #include <climits>

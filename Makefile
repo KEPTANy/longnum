@@ -18,7 +18,7 @@ ARFLAGS     := -r -c -s
 
 TEST_SRCS   := $(wildcard $(TEST_DIR)/*.cpp)
 TEST_OBJS   := $(TEST_SRCS:$(TEST_DIR)/%.cpp=$(BUILD_DIR)/%.o)
-TEST_FLAGS  := -I$(LIB_DIR)/doctest/doctest/
+TEST_FLAGS  := -I$(LIB_DIR)/doctest/doctest/ -DLONGNUM_TEST_PRIVATE
 TEST_TARGET := test_runner
 
 RM          := rm -f 

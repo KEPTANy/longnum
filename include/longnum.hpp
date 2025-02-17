@@ -115,7 +115,9 @@ public:
   // operands is kept. Throws if `other` is 0.
   std::pair<Longnum, Longnum> div_mod(const Longnum &other) const;
 
+#ifndef LONGNUM_TEST_PRIVATE
 private:
+#endif
   // A number is represented with three values:
   //
   // 1. `digits` contains a sequence of limbs and represent an absolute value

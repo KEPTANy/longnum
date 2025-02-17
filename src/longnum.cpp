@@ -264,7 +264,7 @@ bool Longnum::get_bit(std::intmax_t index) const {
       static_cast<std::size_t>(real_index) / digit_bits >= digits.size()) {
     return false;
   }
-  return digits[real_index / digit_bits] >> (real_index % digit_bits);
+  return (digits[real_index / digit_bits] >> (real_index % digit_bits)) & 0x1;
 }
 
 void Longnum::set_bit(std::intmax_t index, bool bit, bool remove_zeros) {

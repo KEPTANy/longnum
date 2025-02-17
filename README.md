@@ -2,19 +2,23 @@
 
 A simple fixed-point arbitrary precision number manipulation library
 
-# How to build
+# How to build/test/delete this library
 
 ```bash
-# Build library as static
+# Build static library.
+# Creates liblongnum.a in the same directory as this file.
 make
 
-# Rebuild
+# Build library and run test suite. Creates test_runner binary.
+make test
+
+# Rebuild library. Same as make fclean && make.
 make re
 
-# Clean build directory
+# Delete temporary files (object files and other junk).
 make clean
 
-# Clean everything (including library itself)
+# Deletes build files, liblongnum.a and test_runner.
 make fclean
 ```
 

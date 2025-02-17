@@ -165,7 +165,7 @@ std::pair<Longnum, Longnum> Longnum::div_mod(const Longnum &other) const {
   }
 
   Longnum quotient{};
-  quotient.set_precision(std::max(get_precision(), other.get_precision()));
+  quotient.set_precision(std::min(get_precision(), other.get_precision()));
 
   std::size_t bits{bits_in_absolute_value() + other.bits_in_absolute_value()};
   for (std::size_t bit{bits - 1}; bit < bits; bit--) {

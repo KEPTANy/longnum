@@ -103,8 +103,8 @@ std::strong_ordering Longnum::abs_compare(const Longnum &other) const {
   auto this_prec{get_precision()};
   auto other_prec{other.get_precision()};
 
-  auto this_msb{static_cast<std::intmax_t>(this_bits) + this_prec};
-  auto other_msb{static_cast<std::intmax_t>(other_bits) + other_prec};
+  auto this_msb{static_cast<std::intmax_t>(this_bits) - this_prec};
+  auto other_msb{static_cast<std::intmax_t>(other_bits) - other_prec};
   if (this_msb != other_msb) {
     return this_msb < other_msb ? std::strong_ordering::less
                                 : std::strong_ordering::greater;

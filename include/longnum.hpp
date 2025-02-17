@@ -212,7 +212,7 @@ ln::Longnum::Longnum(T other) : negative{std::signbit(other)} {
   const auto normalized_float{std::abs(std::scalbn(other, mant_bits - exp))};
   const auto mantissa{static_cast<std::uintmax_t>(normalized_float)};
 
-  precision = (mantissa == 0) ? min_exp - mant_bits : exp;
+  precision = (mantissa == 0 ? min_exp : exp) - mant_bits;
 
   constexpr auto bits{std::numeric_limits<std::uintmax_t>::digits};
   for (std::intmax_t i{0}; i < bits; i++) {

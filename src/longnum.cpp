@@ -1,10 +1,51 @@
 #include "longnum.hpp"
 
+#include <algorithm>
 #include <ranges>
 
 namespace ln {
 
 Longnum::Longnum() : digits{}, precision{0}, negative{false} {}
+
+std::string Longnum::to_string(std::uint32_t fp_digits) const {
+  Longnum num{*this};
+  num.negative = false;
+  if (fp_digits) {
+    for (std::size_t i{0}; i < fp_digits; i++) {
+      num *= 10;
+    }
+  }
+  num.set_precision(0);
+
+  std::string res;
+  while (num.sign() != 0) {
+    auto [q, r] = num.div_mod(10);
+    num = q;
+    res += static_cast<char>(r.get_digit(0) + '0');
+
+    if (res.size() == fp_digits) {
+      res += '.';
+    }
+  }
+
+  while (res.size() < fp_digits) {
+    res += '0';
+    if (res.size() == fp_digits) {
+      res += '.';
+    }
+  }
+
+  if (res.back() == '.') {
+    res += '0';
+  }
+
+  if (sign() < 0) {
+    res += '-';
+  }
+
+  std::reverse(res.begin(), res.end());
+  return res;
+}
 
 std::size_t Longnum::bits_in_absolute_value() const {
   return sign() == 0

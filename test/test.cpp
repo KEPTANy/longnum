@@ -115,3 +115,62 @@ TEST_CASE("Integral constructor") {
     SUBCASE_FOR_TYPE(unsigned long long)
     SUBCASE_FOR_TYPE(unsigned long long int)
 }
+
+TEST_CASE("Floating-point constructor") {
+    SUBCASE("Special values") {
+        CHECK_THROWS(Longnum(numeric_limits<float>::infinity()));
+        CHECK_THROWS(Longnum(numeric_limits<double>::infinity()));
+        CHECK_THROWS(Longnum(numeric_limits<long double>::infinity()));
+
+        CHECK_THROWS(Longnum(numeric_limits<float>::quiet_NaN()));
+        CHECK_THROWS(Longnum(numeric_limits<double>::quiet_NaN()));
+        CHECK_THROWS(Longnum(numeric_limits<long double>::quiet_NaN()));
+
+        CHECK(Longnum(0.0).get_precision() ==
+                Longnum(numeric_limits<double>::min()).get_precision());
+
+        CHECK(Longnum(numeric_limits<float>::min()).to_string(43) ==
+                "0.0000000000000000000000000000000000000117549");
+    }
+
+    SUBCASE("Different floating types") {
+        Longnum num1(-2.5f);
+        Longnum num2(3.25);
+        Longnum num3(10.125L);
+        
+        CHECK(num1.to_string(3) == "-2.500");
+        CHECK(num2.to_string(3) == "3.250");
+        CHECK(num3.to_string(3) == "10.125");
+    }
+}
+
+TEST_CASE("Literals") {
+    using namespace lits;
+
+    SUBCASE("Integer literals") {
+        auto num1 = 123_longnum;
+        CHECK(num1.to_string(0) == "123");
+        CHECK(num1.get_precision() == 0);
+
+        auto num2 = 18446744073709551615_longnum;
+        CHECK(num2.sign() > 0);
+        CHECK(num2.to_string(0) == "18446744073709551615");
+
+        auto num3 = -18446744073709551615_longnum;
+        CHECK(num3.sign() < 0);
+        CHECK(num3.to_string(0) == "-18446744073709551615");
+    }
+
+    SUBCASE("Floating literals") {
+        auto num1 = 12.5_longnum;
+        CHECK(num1.to_string(1) == "12.5");
+        CHECK(num1.get_precision() < 0);
+
+        auto num2 = 3.141592653589793238_longnum;
+        CHECK(num2.to_string(18) == "3.141592653589793238");
+
+        auto num3 = -0.0_longnum;
+        CHECK(num3.to_string(1) == "0.0");
+        CHECK(num3.get_precision() < 0);
+    }
+}

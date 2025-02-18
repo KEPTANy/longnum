@@ -54,6 +54,12 @@ TEST_CASE("Comparison") {
         CHECK(neg < pos);
         CHECK(pos.abs_compare(neg) == 0);
         CHECK(neg.abs_compare(pos) == 0);
+
+        pos += numeric_limits<Longnum::Digit>::max();
+        pos += 1;
+
+        CHECK(pos.abs_compare(neg) > 0);
+        CHECK(neg.abs_compare(pos) < 0);
     }
 
     SUBCASE("Zero comparisons") {

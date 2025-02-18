@@ -177,7 +177,17 @@ std::pair<Longnum, Longnum> Longnum::div_mod(const Longnum &other) const {
 
   quotient.negative = this_sign != other_sign;
   quotient.remove_leading_zeros();
-  return {quotient, *this - quotient * other};
+  auto rem{*this - quotient * other};
+  if (rem.sign() < 0) {
+    if (other.sign() > 0) {
+      rem += other;
+      quotient -= 1;
+    } else {
+      rem -= other;
+      quotient += 1;
+    }
+  }
+  return {quotient, rem};
 }
 
 } // namespace ln

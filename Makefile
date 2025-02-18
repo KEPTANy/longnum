@@ -69,5 +69,5 @@ re:
 
 check-format:
 	clang-format --dry-run --Werror \
-		$(shell find $(SRC_DIR) $(INCLUDE_DIR) \
+		$(shell find $(SRC_DIR) $(INCLUDE_DIR) $(EXAMPLES_DIR) \
 			-name '*.cpp' -o -name '*.hpp' -o -name '*.h')

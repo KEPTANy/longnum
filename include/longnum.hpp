@@ -60,7 +60,7 @@ public:
   Precision get_precision() const;
 
   // Sets how many bits are used for fraction. Keep in mind, it works in O(n).
-  void set_precision(Precision prec);
+  Longnum &set_precision(Precision prec);
 
   // Returns an int that:
   // 1. is 0 if a number is 0.
@@ -69,7 +69,7 @@ public:
   int sign() const;
 
   // Same as multiplying the number by -1.
-  void flip_sign();
+  Longnum &flip_sign();
 
   // The usual spaceship operator, nothing crazy.
   std::strong_ordering operator<=>(const Longnum &other) const;

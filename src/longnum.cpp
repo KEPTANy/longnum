@@ -55,10 +55,10 @@ std::size_t Longnum::bits_in_absolute_value() const {
 
 Longnum::Precision Longnum::get_precision() const { return precision; }
 
-void Longnum::set_precision(Longnum::Precision new_prec) {
+Longnum &Longnum::set_precision(Longnum::Precision new_prec) {
   auto old_prec{get_precision()};
   if (new_prec == old_prec) {
-    return;
+    return *this;
   }
 
   if (new_prec > old_prec) {
@@ -69,6 +69,7 @@ void Longnum::set_precision(Longnum::Precision new_prec) {
 
   precision = new_prec;
   remove_leading_zeros();
+  return *this;
 }
 
 int Longnum::sign() const {
@@ -78,10 +79,11 @@ int Longnum::sign() const {
   return negative ? -1 : 1;
 }
 
-void Longnum::flip_sign() {
+Longnum &Longnum::flip_sign() {
   if (sign() != 0) {
     negative = !negative;
   }
+  return *this;
 }
 
 std::strong_ordering Longnum::operator<=>(const Longnum &other) const {

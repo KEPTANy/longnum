@@ -220,7 +220,6 @@ Longnum &Longnum::operator>>=(std::size_t sh) {
   return *this;
 }
 
-// TODO: can be sped up by getting two consecutive digits
 Longnum::Digit Longnum::get_digit(std::intmax_t index) const {
   if (get_precision() % digit_bits == 0) {
     index += get_precision() / digit_bits;
@@ -229,15 +228,24 @@ Longnum::Digit Longnum::get_digit(std::intmax_t index) const {
                : 0;
   }
 
-  auto real_index{index * digit_bits};
-  Digit res{0};
-  for (std::intmax_t bit{0}; bit < digit_bits; bit++) {
-    if (get_bit(bit + real_index)) {
-      res |= static_cast<Digit>(1) << bit;
-    }
+  index = index * digit_bits + get_precision();
+
+  Digit lo{0};
+  if (index >= 0 && static_cast<std::size_t>(index /= digit_bits) < digits.size()) {
+    lo = digits[index];
   }
 
-  return res;
+  Digit hi{0};
+  if (static_cast<std::size_t>(++index) < digits.size()) {
+    hi = digits[index];
+  }
+
+  auto shift{(get_precision()) % digit_bits};
+  if (shift < 0) {
+    shift += digit_bits;
+  }
+
+  return (hi << (digit_bits - shift)) | (lo >> shift);
 }
 
 // TODO: can be sped up by getting two consecutive digits

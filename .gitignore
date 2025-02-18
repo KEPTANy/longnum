@@ -4,6 +4,7 @@ compile_commands.json
 
 # C++
 build/
+examples/bin/
 test_runner
 *.a
 *.lib

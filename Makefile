@@ -24,7 +24,7 @@ TEST_TARGET   := $(TEST_DIR)/test_runner
 
 EXAMPLES_SRCS := $(wildcard $(EXAMPLES_DIR)/*.cpp)
 EXAMPLES_OBJS := $(EXAMPLES_SRCS:%.cpp=$(BUILD_DIR)/%.o)
-EXAMPLES      := $(EXAMPLES_SRCS:%.cpp=%)
+EXAMPLES      := $(EXAMPLES_SRCS:$(EXAMPLES_DIR)/%.cpp=$(EXAMPLES_DIR)/bin/%)
 
 RM            := rm -f 
 
@@ -50,7 +50,8 @@ $(TEST_TARGET): $(TEST_OBJS) $(TARGET)
 test: $(TEST_TARGET)
 	./$(TEST_TARGET)
 
-$(EXAMPLES_DIR)/%: $(BUILD_DIR)/$(EXAMPLES_DIR)/%.o $(TARGET)
+$(EXAMPLES_DIR)/bin/%: $(BUILD_DIR)/$(EXAMPLES_DIR)/%.o $(TARGET)
+	mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $^ -o $@
 
 examples: $(EXAMPLES)

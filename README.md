@@ -9,8 +9,11 @@ A simple fixed-point arbitrary precision number manipulation library
 # Creates liblongnum.a in the same directory as this file.
 make
 
-# Build library and run test suite. Creates test_runner binary.
+# Build library and run test suite. Creates test/test_runner binary.
 make test
+
+# Build examples, you can find and run them in examples directory.
+make examples
 
 # Rebuild library. Same as make fclean && make.
 make re

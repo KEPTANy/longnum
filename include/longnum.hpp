@@ -171,6 +171,12 @@ private:
   // Set `i`'th digit in radix 2^`digit_bits`.
   void set_digit(std::intmax_t index, Digit digit, bool remove_zeros = false);
 
+  // Max place in radix 2^`digit_bits`.
+  std::intmax_t max_digit_index() const;
+
+  // Min place in radix 2^`digit_bits`.
+  std::intmax_t min_digit_index() const;
+
   // Get `i`'th digit in radix 2.
   bool get_bit(std::intmax_t index) const;
 

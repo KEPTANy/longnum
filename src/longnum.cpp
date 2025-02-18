@@ -112,8 +112,8 @@ std::strong_ordering Longnum::abs_compare(const Longnum &other) const {
                                 : std::strong_ordering::greater;
   }
 
-  auto max_digit{this_msb / digit_bits + 1};
-  auto min_digit{std::min(-this_prec, -other_prec) / digit_bits - 1};
+  auto max_digit{max_digit_index()};
+  auto min_digit{min_digit_index()};
   for (std::intmax_t i{max_digit}; i >= min_digit; i--) {
     auto x{this->get_digit(i)};
     auto y{other.get_digit(i)};
@@ -266,6 +266,34 @@ void Longnum::set_digit(std::intmax_t index, Digit digit, bool remove_zeros) {
   if (remove_zeros) {
     remove_leading_zeros();
   }
+}
+
+std::intmax_t Longnum::max_digit_index() const {
+  if (sign() == 0) {
+    return std::numeric_limits<std::intmax_t>::min();
+  }
+
+  std::intmax_t max_bit{static_cast<std::intmax_t>(bits_in_absolute_value()) - get_precision()};
+
+  if (max_bit >= 0 || max_bit % digit_bits == 0) {
+    return max_bit / digit_bits;
+  }
+
+  return max_bit / digit_bits - 1;
+}
+
+std::intmax_t Longnum::min_digit_index() const {
+  if (sign() == 0) {
+    return std::numeric_limits<std::intmax_t>::max();
+  }
+
+  std::intmax_t min_bit{-get_precision()};
+
+  if (min_bit >= 0 || min_bit % digit_bits == 0) {
+    return min_bit / digit_bits;
+  }
+
+  return min_bit / digit_bits - 1;
 }
 
 bool Longnum::get_bit(std::intmax_t index) const {

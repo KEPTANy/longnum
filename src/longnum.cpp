@@ -231,7 +231,8 @@ Longnum::Digit Longnum::get_digit(std::intmax_t index) const {
   index = index * digit_bits + get_precision();
 
   Digit lo{0};
-  if (index >= 0 && static_cast<std::size_t>(index /= digit_bits) < digits.size()) {
+  if (index >= 0 &&
+      static_cast<std::size_t>(index /= digit_bits) < digits.size()) {
     lo = digits[index];
   }
 
@@ -252,7 +253,8 @@ void Longnum::set_digit(std::intmax_t index, Digit digit, bool remove_zeros) {
   if (get_precision() % digit_bits == 0) {
     index += get_precision() / digit_bits;
     if (index >= 0) {
-      digits.resize(std::max(static_cast<std::size_t>(index + 1), digits.size()), 0);
+      digits.resize(
+          std::max(static_cast<std::size_t>(index + 1), digits.size()), 0);
       digits[index] = digit;
     }
     return;
@@ -272,8 +274,9 @@ void Longnum::set_digit(std::intmax_t index, Digit digit, bool remove_zeros) {
 
   if (index >= 0) {
     index /= digit_bits;
-    digits.resize(std::max(static_cast<std::size_t>(index + 2), digits.size()), 0);
-    
+    digits.resize(std::max(static_cast<std::size_t>(index + 2), digits.size()),
+                  0);
+
     digits[index] = (digits[index] & (mx >> (digit_bits - shift))) | lo;
 
     index++;
@@ -281,7 +284,8 @@ void Longnum::set_digit(std::intmax_t index, Digit digit, bool remove_zeros) {
     digits[index] = (digits[index] & (mx << shift)) | hi;
   } else if ((index += digit_bits) >= 0) {
     index /= digit_bits;
-    digits.resize(std::max(static_cast<std::size_t>(index + 1), digits.size()), 0);
+    digits.resize(std::max(static_cast<std::size_t>(index + 1), digits.size()),
+                  0);
 
     digits[index] = (digits[index] & (mx << shift)) | hi;
   }
@@ -296,7 +300,8 @@ std::intmax_t Longnum::max_digit_index() const {
     return std::numeric_limits<std::intmax_t>::min();
   }
 
-  std::intmax_t max_bit{static_cast<std::intmax_t>(bits_in_absolute_value()) - get_precision()};
+  std::intmax_t max_bit{static_cast<std::intmax_t>(bits_in_absolute_value()) -
+                        get_precision()};
 
   if (max_bit >= 0 || max_bit % digit_bits == 0) {
     return max_bit / digit_bits;

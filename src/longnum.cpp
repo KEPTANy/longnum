@@ -174,7 +174,7 @@ Longnum &Longnum::operator<<=(std::size_t sh) {
 
   Digit carry{0};
   for (auto &curr : digits) {
-    Digit shifted{(curr << sh) | carry};
+    Digit shifted{static_cast<Digit>((curr << sh) | carry)};
     carry = curr >> (digit_bits - sh);
     curr = shifted;
   }
@@ -211,7 +211,7 @@ Longnum &Longnum::operator>>=(std::size_t sh) {
 
   Digit carry{0};
   for (auto &curr : std::ranges::reverse_view(digits)) {
-    Digit shifted{(curr >> sh) | carry};
+    Digit shifted{static_cast<Digit>((curr >> sh) | carry)};
     carry = curr << (digit_bits - sh);
     curr = shifted;
   }

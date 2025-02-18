@@ -112,8 +112,8 @@ std::strong_ordering Longnum::abs_compare(const Longnum &other) const {
                                 : std::strong_ordering::greater;
   }
 
-  auto max_digit{max_digit_index()};
-  auto min_digit{min_digit_index()};
+  auto max_digit{std::max(max_digit_index(), other.max_digit_index())};
+  auto min_digit{std::min(min_digit_index(), other.min_digit_index())};
   for (std::intmax_t i{max_digit}; i >= min_digit; i--) {
     auto x{this->get_digit(i)};
     auto y{other.get_digit(i)};
@@ -232,13 +232,16 @@ Longnum::Digit Longnum::get_digit(std::intmax_t index) const {
 
   Digit lo{0};
   if (index >= 0 &&
-      static_cast<std::size_t>(index /= digit_bits) < digits.size()) {
-    lo = digits[index];
+      static_cast<std::size_t>(index / digit_bits) < digits.size()) {
+    lo = digits[index / digit_bits];
   }
 
+  index += digit_bits;
+
   Digit hi{0};
-  if (static_cast<std::size_t>(++index) < digits.size()) {
-    hi = digits[index];
+  if (index >= 0 &&
+      static_cast<std::size_t>(index / digit_bits) < digits.size()) {
+    hi = digits[index / digit_bits];
   }
 
   auto shift{(get_precision()) % digit_bits};

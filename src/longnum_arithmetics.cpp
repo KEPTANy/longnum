@@ -44,8 +44,7 @@ Longnum &Longnum::operator+=(const Longnum &other) {
 
 Longnum Longnum::operator-() const {
   Longnum x{*this};
-  x.flip_sign();
-  return x;
+  return x.flip_sign();
 }
 
 Longnum Longnum::operator-(const Longnum &other) const {
@@ -69,10 +68,9 @@ Longnum &Longnum::operator-=(const Longnum &other) {
     return *this;
   }
 
-  Longnum aligned_other{other};
-  align_with(aligned_other);
+  set_precision(std::max(get_precision(), other.get_precision()));
 
-  auto cmp = abs_compare(aligned_other);
+  auto cmp = abs_compare(other);
   if (cmp == 0) {
     digits.clear();
     negative = false;
@@ -83,18 +81,16 @@ Longnum &Longnum::operator-=(const Longnum &other) {
     flip_sign();
   }
 
-  auto &a{cmp < 0 ? aligned_other.digits : digits};
-  auto &b{cmp < 0 ? digits : aligned_other.digits};
-
-  digits.resize(std::max(digits.size(), aligned_other.digits.size()), 0);
   Digit borrow{0};
-  for (std::size_t i{0}; i < digits.size(); i++) {
-    DoubleDigit val{a[i]};
-    if (i < b.size()) {
-      val -= b[i];
-    }
+
+  auto start{min_digit_index()};
+  auto end{std::max(max_digit_index(), other.max_digit_index())};
+  for (std::intmax_t i{start}; i <= end; i++) {
+    DoubleDigit val{cmp > 0 ? get_digit(i) : other.get_digit(i)};
+    val -= cmp > 0 ? other.get_digit(i) : get_digit(i);
     val -= borrow;
-    digits[i] = static_cast<Digit>(val);
+
+    set_digit(i, static_cast<Digit>(val));
     borrow = (val >> digit_bits) ? 1 : 0;
   }
 

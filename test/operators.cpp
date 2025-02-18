@@ -174,3 +174,86 @@ TEST_CASE("Addition and Subtraction") {
         CHECK(c.abs_compare(b) == std::strong_ordering::greater);
     }
 }
+
+TEST_CASE("Division and Modulo") {
+    SUBCASE("Basic division") {
+        Longnum a(10), b(3);
+        Longnum q = a / b;
+        CHECK(q.to_string(2) == "3.00");
+        
+        Longnum c(100), d(25);
+        CHECK((c / d).to_string(1) == "4.0");
+    }
+
+    SUBCASE("Division precision") {
+        Longnum a(10, 1), b(4);
+        Longnum result = a / b; // 2.5
+        CHECK(result.to_string(2) == "2.50");
+        CHECK(result.get_precision() == 1);
+    }
+
+    SUBCASE("Modulo operations") {
+        Longnum a(10), b(3);
+        CHECK((a % b).to_string(1) == "1.0");
+        
+        Longnum c(25), d(7);
+        CHECK((c % d).to_string(1) == "4.0");
+    }
+
+    SUBCASE("Div_Mod function") {
+        auto [q1, r1] = Longnum(17).div_mod(Longnum(5));
+        CHECK(q1.to_string(1) == "3.0");
+        CHECK(r1.to_string(1) == "2.0");
+
+        auto [q2, r2] = Longnum(100).div_mod(Longnum(25));
+        CHECK(q2.to_string(1) == "4.0");
+        CHECK(r2.to_string(1) == "0.0");
+    }
+
+    SUBCASE("Negative numbers") {
+        SUBCASE("Negative dividend") {
+            Longnum a(-10), b(3);
+            CHECK((a / b).to_string(1) == "-4.0");
+            CHECK((a % b).to_string(1) == "2.0");
+        }
+
+        SUBCASE("Negative divisor") {
+            Longnum a(10), b(-3);
+            CHECK((a / b).to_string(1) == "-3.0");
+            CHECK((a % b).to_string(1) == "1.0");
+        }
+
+        SUBCASE("Both negative") {
+            Longnum a(-10), b(-3);
+            CHECK((a / b).to_string(1) == "4.0");
+            CHECK((a % b).to_string(1) == "2.0");
+        }
+    }
+
+    SUBCASE("Zero handling") {
+        Longnum zero;
+        Longnum num(5);
+        
+        SUBCASE("Division by zero") {
+            CHECK_THROWS(num / zero);
+            CHECK_THROWS(num % zero);
+            CHECK_THROWS(zero.div_mod(zero));
+        }
+
+        SUBCASE("Zero dividend") {
+            auto [q, r] = zero.div_mod(num);
+            CHECK(q.to_string(1) == "0.0");
+            CHECK(r.to_string(1) == "0.0");
+
+            num.flip_sign();
+            CHECK(q.to_string(1) == "0.0");
+            CHECK(r.to_string(1) == "0.0");
+        }
+    }
+
+    SUBCASE("Identity operations") {
+        Longnum a(123, 142);
+        CHECK((a / a).to_string(1) == "1.0");
+        CHECK((a % a).to_string(1) == "0.0");
+    }
+}

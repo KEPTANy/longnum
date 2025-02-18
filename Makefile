@@ -28,14 +28,14 @@ EXAMPLES      := $(EXAMPLES_SRCS:$(EXAMPLES_DIR)/%.cpp=$(EXAMPLES_DIR)/bin/%)
 
 RM            := rm -f 
 
-.PHONY: all clean fclean re check-format test
+.PHONY: all clean fclean re check-format test examples get-dependencies
 .PRECIOUS: $(BUILD_DIR)/%.o $(BUILD_DIR)/%.d
 
 $(BUILD_DIR)/%.o: %.cpp
 	mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $< -c -o $@
 
-$(BUILD_DIR)/$(TEST_DIR)%.o: $(TEST_DIR)/%.cpp
+$(BUILD_DIR)/$(TEST_DIR)/%.o: $(TEST_DIR)/%.cpp get-dependencies
 	mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $(TEST_FLAGS) $(CPPFLAGS) $< -c -o $@
 
@@ -67,6 +67,9 @@ fclean: clean
 re:
 	$(MAKE) fclean
 	$(MAKE) all
+
+get-dependencies:
+	git submodule update --init --recursive
 
 check-format:
 	clang-format --dry-run --Werror \

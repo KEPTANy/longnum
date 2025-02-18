@@ -248,19 +248,42 @@ Longnum::Digit Longnum::get_digit(std::intmax_t index) const {
   return (hi << (digit_bits - shift)) | (lo >> shift);
 }
 
-// TODO: can be sped up by getting two consecutive digits
 void Longnum::set_digit(std::intmax_t index, Digit digit, bool remove_zeros) {
   if (get_precision() % digit_bits == 0) {
     index += get_precision() / digit_bits;
-    if (index >= 0 && static_cast<std::size_t>(index) < digits.size()) {
+    if (index >= 0) {
+      digits.resize(std::max(static_cast<std::size_t>(index + 1), digits.size()), 0);
       digits[index] = digit;
     }
     return;
   }
 
-  auto real_index{index * digit_bits};
-  for (std::intmax_t bit{0}; bit < digit_bits; bit++) {
-    set_bit(bit + real_index, digit & (static_cast<Digit>(1) << bit));
+  auto shift{(get_precision()) % digit_bits};
+  if (shift < 0) {
+    shift += digit_bits;
+  }
+
+  Digit lo{static_cast<Digit>(digit << shift)};
+  Digit hi{static_cast<Digit>(digit >> (digit_bits - shift))};
+
+  index = index * digit_bits + get_precision();
+
+  Digit mx{std::numeric_limits<Digit>::max()};
+
+  if (index >= 0) {
+    index /= digit_bits;
+    digits.resize(std::max(static_cast<std::size_t>(index + 2), digits.size()), 0);
+    
+    digits[index] = (digits[index] & (mx >> (digit_bits - shift))) | lo;
+
+    index++;
+
+    digits[index] = (digits[index] & (mx << shift)) | hi;
+  } else if ((index += digit_bits) >= 0) {
+    index /= digit_bits;
+    digits.resize(std::max(static_cast<std::size_t>(index + 1), digits.size()), 0);
+
+    digits[index] = (digits[index] & (mx << shift)) | hi;
   }
 
   if (remove_zeros) {

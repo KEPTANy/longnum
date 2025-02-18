@@ -23,18 +23,18 @@ Longnum &Longnum::operator+=(const Longnum &other) {
     return *this;
   }
 
-  Longnum aligned_other{other};
-  align_with(aligned_other);
+  set_precision(std::max(get_precision(), other.get_precision()));
 
-  digits.resize(std::max(digits.size(), aligned_other.digits.size()) + 1, 0);
   Digit carry{0};
-  for (std::size_t i{0}; i < digits.size(); i++) {
+
+  auto start{min_digit_index()};
+  auto end{std::max(max_digit_index(), other.max_digit_index())};
+  for (std::intmax_t i{start}; i <= end; i++) {
     DoubleDigit val{carry};
-    val += digits[i];
-    if (i < aligned_other.digits.size()) {
-      val += aligned_other.digits[i];
-    }
-    digits[i] = static_cast<Digit>(val);
+    val += get_digit(i);
+    val += other.get_digit(i);
+
+    set_digit(i, static_cast<Digit>(val));
     carry = val >> digit_bits;
   }
 

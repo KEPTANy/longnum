@@ -90,3 +90,87 @@ TEST_CASE("Comparison") {
     }
 }
 
+TEST_CASE("Addition and Subtraction") {
+    SUBCASE("Basic addition") {
+        Longnum a(10), b(5, 3);
+        Longnum c = a + b;
+        CHECK(c.to_string(0) == "15");
+        CHECK(c.get_precision() == 3);
+
+        Longnum d(-7, 1), e(3);
+        CHECK((d + e).to_string(2) == "-4.00");
+
+        Longnum A(100);
+        A += Longnum(50);
+        CHECK(A.to_string(1) == "150.0");
+        
+        Longnum B(-20);
+        B += Longnum(30, 10);
+        CHECK(B.to_string(0) == "10");
+    }
+
+    SUBCASE("Basic subtraction") {
+        Longnum a(25), b(10);
+        CHECK((a - b).to_string(0) == "15");
+        CHECK((b - a).to_string(0) == "-15");
+
+        Longnum c(-5), d(-3);
+        CHECK((c - d).to_string(0) == "-2");
+
+        Longnum A(50);
+        A -= Longnum(30);
+        CHECK(A.to_string(0) == "20");
+        
+        Longnum B(100);
+        B -= Longnum(150);
+        CHECK(B.to_string(0) == "-50");
+    }
+
+    SUBCASE("Zero handling") {
+        Longnum num(42);
+        
+        CHECK(num + 0 == num);
+        CHECK(num - 0 == num);
+        CHECK(0_longnum + num == num);
+        CHECK(0_longnum - num == -num);
+
+        num.flip_sign();
+        CHECK(num + 0 == num);
+        CHECK(num - 0 == num);
+        CHECK(0_longnum + num == num);
+        CHECK(0_longnum - num == -num);
+    }
+
+    SUBCASE("Precision alignment") {
+        Longnum a(8, 1);
+        Longnum b(4, 102);
+        
+        Longnum sum = a + b;
+        CHECK(sum.to_string(1) == "12.0");
+        CHECK(sum.get_precision() == 102);
+
+        Longnum diff = a - b * 2;
+        CHECK(diff.to_string(1) == "0.0");
+        CHECK(diff.get_precision() == 102);
+    }
+
+    SUBCASE("Subtraction with huge values") {
+        auto pow10 = [](size_t exponent) {
+            Longnum num(1);
+            for(size_t i = 0; i < exponent; ++i) {
+                num = num * 10_longnum;
+            }
+            return num;
+        };
+
+        Longnum a = pow10(100);
+        a.set_precision(-1);
+        Longnum b = pow10(99);
+        b.set_precision(12303);
+        Longnum c = a - b;
+        Longnum expected = pow10(99) * 9_longnum;
+        
+        CHECK(c.to_string(0) == expected.to_string(0));
+        CHECK(c.abs_compare(b) == std::strong_ordering::greater);
+    }
+}

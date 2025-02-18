@@ -175,6 +175,90 @@ TEST_CASE("Addition and Subtraction") {
     }
 }
 
+TEST_CASE("Multiplication") {
+    SUBCASE("Basic multiplication") {
+        Longnum a(5), b(3);
+        CHECK((a * b).to_string(1) == "15.0");
+
+        Longnum c(10), d(0);
+        CHECK((c * d).to_string(1) == "0.0");
+    }
+
+    SUBCASE("Compound multiplication (*=)") {
+        Longnum a(7);
+        a *= Longnum(6);
+        CHECK(a.to_string(1) == "42.0");
+
+        Longnum b(10);
+        b *= Longnum(0);
+        CHECK(b.to_string(1) == "0.0");
+    }
+
+    SUBCASE("Negative numbers") {
+        Longnum a(-4), b(5);
+        CHECK((a * b).to_string(1) == "-20.0");
+
+        Longnum c(-3), d(-2);
+        CHECK((c * d).to_string(1) == "6.0");
+    }
+
+    SUBCASE("Precision handling") {
+        Longnum a(3, 2);
+        Longnum b(2, 3);
+        Longnum result = a * b;
+        
+        CHECK(result.to_string(1) == "6.0");
+        CHECK(result.get_precision() == 3);
+    }
+
+    SUBCASE("Large numbers") {
+        using namespace lits;
+        Longnum big1 = 1000000000_longnum;
+        Longnum big2 = 2000000000_longnum;
+        CHECK((big1 * big2).to_string(1) == "2000000000000000000.0");
+    }
+
+    SUBCASE("Identity operations") {
+        Longnum a(123);
+        CHECK((a * Longnum(1)).to_string(1) == "123.0");
+        CHECK((a * Longnum(0)).to_string(1) == "0.0");
+    }
+
+    SUBCASE("Zero handling") {
+        Longnum zero;
+        Longnum num(5);
+        CHECK((zero * num).to_string(1) == "0.0");
+        CHECK((num * zero).to_string(1) == "0.0");
+    }
+
+    SUBCASE("Fractional numbers") {
+        Longnum a(1, 1);
+        Longnum b(3, 2);
+        a /= 2;
+        b /= 2;
+        Longnum result = a * b;
+        
+        CHECK(result.to_string(3) == "0.750");
+        CHECK(result.get_precision() == 2);
+    }
+
+    SUBCASE("Mixed signs") {
+        Longnum a(-5), b(4);
+        CHECK((a * b).to_string(1) == "-20.0");
+
+        Longnum c(-3), d(-2);
+        CHECK((c * d).to_string(1) == "6.0");
+    }
+
+    SUBCASE("Huge numbers") {
+        using namespace lits;
+        Longnum big1 = 1000000000000000000_longnum; // 1e18
+        Longnum big2 = 1000000000000000000_longnum; // 1e18
+        CHECK((big1 * big2).to_string(1) ==
+                "1000000000000000000000000000000000000.0");
+    }
+}
+
 TEST_CASE("Division and Modulo") {
     SUBCASE("Basic division") {
         Longnum a(10), b(3);

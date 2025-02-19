@@ -28,7 +28,7 @@ EXAMPLES      := $(EXAMPLES_SRCS:$(EXAMPLES_DIR)/%.cpp=$(EXAMPLES_DIR)/bin/%)
 
 RM            := rm -f 
 
-.PHONY: all clean fclean re check-format test examples get-dependencies
+.PHONY: all clean fclean re check-format test pi get-dependencies
 .PRECIOUS: $(BUILD_DIR)/%.o $(BUILD_DIR)/%.d
 
 $(BUILD_DIR)/%.o: %.cpp
@@ -54,7 +54,8 @@ $(EXAMPLES_DIR)/bin/%: $(BUILD_DIR)/$(EXAMPLES_DIR)/%.o $(TARGET)
 	mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $^ -o $@
 
-examples: $(EXAMPLES)
+pi: $(EXAMPLES)
+	./$(EXAMPLES_DIR)/bin/pi
 
 clean:
 	$(RM) -r $(BUILD_DIR)

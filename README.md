@@ -12,8 +12,8 @@ make
 # Build library and run test suite. Creates test/test_runner binary.
 make test
 
-# Build examples, you can find and run them in examples directory.
-make examples
+# Build and run pi computation example.
+make pi
 
 # Rebuild library. Same as make fclean && make.
 make re

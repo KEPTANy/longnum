@@ -108,8 +108,7 @@ std::strong_ordering Longnum::abs_compare(const Longnum &other) const {
   auto this_msb{static_cast<std::intmax_t>(this_bits) - this_prec};
   auto other_msb{static_cast<std::intmax_t>(other_bits) - other_prec};
   if (this_msb != other_msb) {
-    return this_msb < other_msb ? std::strong_ordering::less
-                                : std::strong_ordering::greater;
+    return this_msb <=> other_msb;
   }
 
   auto max_digit{std::max(max_digit_index(), other.max_digit_index())};
@@ -118,7 +117,7 @@ std::strong_ordering Longnum::abs_compare(const Longnum &other) const {
     auto x{this->get_digit(i)};
     auto y{other.get_digit(i)};
     if (x != y) {
-      return x > y ? std::strong_ordering::greater : std::strong_ordering::less;
+      return x <=> y;
     }
   }
 

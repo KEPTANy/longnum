@@ -98,38 +98,53 @@ Longnum &Longnum::operator-=(const Longnum &other) {
   return *this;
 }
 
-Longnum Longnum::operator*(const Longnum &other) const {
-  if (sign() == 0 || other.sign() == 0) {
-    return 0;
-  }
+static std::vector<Longnum::Digit> mul_naive(
+    const std::vector<Longnum::Digit> &a,
+    const std::vector<Longnum::Digit> &b) {
+  std::vector<Longnum::Digit> res(a.size() + b.size(), 0);
 
-  Longnum res{};
-  res.digits.resize(digits.size() + other.digits.size(), 0);
-  res.precision = get_precision() + other.get_precision();
-
-  for (std::size_t i{0}; i < digits.size(); i++) {
-    DoubleDigit carry{0};
-    for (std::size_t j{0}; j < other.digits.size(); j++) {
-      DoubleDigit val{carry + static_cast<DoubleDigit>(digits[i]) *
-                                  static_cast<DoubleDigit>(other.digits[j])};
-      val += res.digits[i + j];
-      res.digits[i + j] = static_cast<Digit>(val);
-      carry = val >> digit_bits;
+  for (std::size_t i{0}; i < a.size(); i++) {
+    Longnum::DoubleDigit carry{0};
+    if (a[i] == 0) {
+      continue;
+    }
+    for (std::size_t j{0}; j < b.size(); j++) {
+      Longnum::DoubleDigit val{carry + static_cast<Longnum::DoubleDigit>(a[i]) *
+                                  static_cast<Longnum::DoubleDigit>(b[j])};
+      val += res[i + j];
+      res[i + j] = static_cast<Longnum::Digit>(val);
+      carry = val >> Longnum::digit_bits;
     }
 
     if (carry != 0) {
-      res.digits[i + other.digits.size()] = carry;
+      res[i + b.size()] = carry;
     }
   }
 
-  res.negative = sign() != other.sign();
-  res.set_precision(std::max(get_precision(), other.get_precision()));
-  res.remove_leading_zeros();
   return res;
 }
 
+Longnum Longnum::operator*(const Longnum &other) const {
+  Longnum x{*this};
+  return x *= other;
+}
+
 Longnum &Longnum::operator*=(const Longnum &other) {
-  return *this = *this * other;
+  if (sign() == 0 || other.sign() == 0) {
+    digits.clear();
+    negative = false;
+    return *this;
+  }
+
+  auto new_prec{std::max(get_precision(), other.get_precision())};
+
+  negative = sign() != other.sign();
+  precision += other.precision;
+  digits = mul_naive(digits, other.digits);
+
+  set_precision(new_prec);
+  remove_leading_zeros();
+  return *this;
 }
 
 Longnum Longnum::operator/(const Longnum &other) const {

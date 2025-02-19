@@ -2,6 +2,33 @@
 
 namespace ln {
 
+static std::vector<Longnum::Digit>
+mul_naive(const std::vector<Longnum::Digit> &a,
+          const std::vector<Longnum::Digit> &b) {
+  std::vector<Longnum::Digit> res(a.size() + b.size(), 0);
+
+  for (std::size_t i{0}; i < a.size(); i++) {
+    Longnum::DoubleDigit carry{0};
+    if (a[i] == 0) {
+      continue;
+    }
+    for (std::size_t j{0}; j < b.size(); j++) {
+      Longnum::DoubleDigit val{carry +
+                               static_cast<Longnum::DoubleDigit>(a[i]) *
+                                   static_cast<Longnum::DoubleDigit>(b[j])};
+      val += res[i + j];
+      res[i + j] = static_cast<Longnum::Digit>(val);
+      carry = val >> Longnum::digit_bits;
+    }
+
+    if (carry != 0) {
+      res[i + b.size()] = carry;
+    }
+  }
+
+  return res;
+}
+
 Longnum Longnum::operator+(const Longnum &other) const {
   Longnum x{*this};
   return x += other;
@@ -96,32 +123,6 @@ Longnum &Longnum::operator-=(const Longnum &other) {
 
   remove_leading_zeros();
   return *this;
-}
-
-static std::vector<Longnum::Digit> mul_naive(
-    const std::vector<Longnum::Digit> &a,
-    const std::vector<Longnum::Digit> &b) {
-  std::vector<Longnum::Digit> res(a.size() + b.size(), 0);
-
-  for (std::size_t i{0}; i < a.size(); i++) {
-    Longnum::DoubleDigit carry{0};
-    if (a[i] == 0) {
-      continue;
-    }
-    for (std::size_t j{0}; j < b.size(); j++) {
-      Longnum::DoubleDigit val{carry + static_cast<Longnum::DoubleDigit>(a[i]) *
-                                  static_cast<Longnum::DoubleDigit>(b[j])};
-      val += res[i + j];
-      res[i + j] = static_cast<Longnum::Digit>(val);
-      carry = val >> Longnum::digit_bits;
-    }
-
-    if (carry != 0) {
-      res[i + b.size()] = carry;
-    }
-  }
-
-  return res;
 }
 
 Longnum Longnum::operator*(const Longnum &other) const {
